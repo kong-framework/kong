@@ -1,0 +1,7 @@
+[package]
+name = "alkindi"
+version = "0.1.0"
+authors = ["merelydev <dev@merely.tech>"]
+edition = "2018"
+
+[dependencies]
