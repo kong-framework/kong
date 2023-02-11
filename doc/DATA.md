@@ -53,6 +53,29 @@ Account data that can be shown to the public (Other users, guests).
 
 ---
 
+## 🏠 `Property`
+
+Data type to represent a physical property such as a house.
+
+| Field           | Description                                            | Type          |
+|-----------------|--------------------------------------------------------|---------------|
+| `name`          | Name of the property                                   | `String`      |
+| `price`         | Price of the property                                  | `Option<f64>` |
+| `bedrooms`      | Number of bedrooms                                     | `u16`         |
+| `bathrooms`     | Number of bathrooms                                    | `u16`         |
+| `sqft`          | Area size                                              | `f64`         |
+| `address`       | Address of property                                    | `String`      |
+| `agentid`       | ID of Agent representing the property                  | `Option<i64>` |
+| `description`   | Description of the property                            | `String`      |
+| `online_views`  | Number of online views the property got                | `u64`         |
+| `physical_view` | Number of physical irl views the property got          | `u16`         |
+| `likes`         | Number of likes for the property                       | `u64`         |
+| `bookmarks`     | Number of bookmarks for the property                   | `u64`         |
+| `photos`        | Contains a JSON string with paths to the actual images | `String`      |
+| `added`         | Date when the property was added                       | `Date`        |
+
+---
+
 ## 🕹️ Inputs
 
 Data that is received as input from users, usually other data types are
@@ -76,6 +99,21 @@ Input provided by the user, to log into their account.
 |------------|-----------------------|----------|
 | `username` | Account email address | `String` |
 | `password` | Account master key    | `String` |
+
+### ✨ `PropertyInput`
+
+Input provided by the user, to create a new property.
+
+| Field           | Description                                            | Type          |
+|-----------------|--------------------------------------------------------|---------------|
+| `name`          | Name of the property                                   | `String`      |
+| `price`         | Price of the property                                  | `Option<f64>` |
+| `bedrooms`      | Number of bedrooms                                     | `u16`         |
+| `bathrooms`     | Number of bathrooms                                    | `u16`         |
+| `sqft`          | Area size                                              | `f64`         |
+| `address`       | Address of property                                    | `String`      |
+| `agentid`       | ID of Agent representing the property                  | `Option<i64>` |
+| `description`   | Description of the property                            | `String`      |
 
 ___
 
