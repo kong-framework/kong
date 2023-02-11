@@ -43,17 +43,6 @@ A user's account.
 
 - should be at least 10 characters long
 
-### ✨ AccountCreationInput
-
-Data used as input to create a new account.
-
-| Field              | Description               | Type     |
-|--------------------|---------------------------|----------|
-| `username`         | Account's unique username | `String` |
-| `password`         | Account's master key      | `String` |
-| `retyped_password` | Retyped password          | `String` |
-| `email`            | User's email address      | `String` |
-
 ### 🌐 PublicAccount
 
 Account data that can be shown to the public (Other users, guests).
@@ -61,6 +50,32 @@ Account data that can be shown to the public (Other users, guests).
 | Field              | Description               | Type     |
 |--------------------|---------------------------|----------|
 | `username`         | Account's unique username | `String` |
+
+---
+
+## 🕹️ Inputs
+
+Data that is received as input from users, usually other data types are
+created from this input.
+
+### ✨ AccountCreationInput
+
+Data used as input to create a new account.
+
+| Field      | Description               | Type             |
+|------------|---------------------------|------------------|
+| `username` | Account's unique username | `String`         |
+| `email`    | User's email address      | `Option<String>` |
+| `password` | Account's master key      | `String`         |
+
+### 🔑 AccountLoginInput
+
+Input provided by the user, to log into their account.
+
+| Field      | Description           | Type     |
+|------------|-----------------------|----------|
+| `username` | Account email address | `String` |
+| `password` | Account master key    | `String` |
 
 ___
 
