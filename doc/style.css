@@ -1,0 +1,228 @@
+
+html {
+    line-height: 1.5;
+    font-family: Georgia, serif;
+    font-size: 20px;
+    color: #ffffff;
+    background-color: #222D31 ;
+}
+body {
+    margin: 0 auto;
+    max-width: 36em;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 0px;
+    margin-top: 0px;
+    padding-bottom: 50px;
+    hyphens: auto;
+    word-wrap: break-word;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+}
+
+@media (max-width: 600px) {
+    body {
+        font-size: 0.9em;
+        padding: 1em;
+    }
+}
+@media print {
+    body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+    }
+    p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+    }
+    h2, h3, h4 {
+        page-break-after: avoid;
+    }
+    #TOC{
+	position: relative !important;
+	width: inherit;
+	height: inherit;
+	border: none;	
+    }
+}
+p {
+    margin: 1em 0;
+}
+a {
+    color: #1abc9c;
+}
+a:visited {
+    color: #1abc9c;
+}
+img {
+    max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.4em;
+    color: #1abc9c;
+}
+h5, h6 {
+    font-size: 1em;
+    font-style: italic;
+}
+h6 {
+    font-weight: normal;
+}
+ol, ul {
+    padding-left: 1.7em;
+    margin-top: 1em;
+}
+li > ol, li > ul {
+    margin-top: 0;
+}
+blockquote {
+    margin: 1em 0 1em 1.7em;
+    padding-left: 1em;
+    border-left: 2px solid #e6e6e6;
+    color: #606060;
+}
+code {
+    font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+    font-size: 85%;
+    margin: 0;
+    color: #1abc9c;
+    border: thin dashed #1abc9c;
+    border-radius: 2px;
+}
+pre {
+    margin: 1em 0;
+    overflow: auto;
+    border: thin dashed #1abc9c;
+    border-radius: 2px;
+    padding: .5em;
+}
+pre code {
+    padding: 0;
+    overflow: visible;
+    border: none;
+}
+.sourceCode {
+    background-color: transparent;
+    overflow: visible;
+}
+
+hr {
+    background-color: #1abc9c;
+    border: none;
+    height: 5px;
+    margin: 4em 0;
+}
+table {
+    margin: 1em 0;
+    border-collapse: collapse;
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+    font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+    margin-bottom: 0.75em;
+}
+thead{
+    background: #1abc9c;
+}
+tbody {
+    margin-top: 0.5em;
+    border: thin solid #1abc9c;
+}
+th {
+    border-top: 1px solid #1abc9c;
+    padding: 0.25em 0.5em 0.25em 0.5em;
+}
+tr{
+    border: thin solid #1abc9c;
+}
+td {
+    padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+    margin-bottom: 4em;
+    text-align: center;
+}
+
+#TOC{
+    position: fixed;
+    width: 20vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    border-right: thin solid #1abc9c;
+    padding-left: 1em;
+    overflow: auto;
+}
+
+#TOC ul {
+    padding-left: .5em;
+}
+
+#TOC li {
+    list-style: circle;
+    width: 100%
+}
+
+#TOC a:not(:hover) {
+    text-decoration: none;
+}
+
+pre{
+    padding: 1em;
+    font-family: monospace !Important;
+    font-size: 18px;
+}
+
+blockquote {
+    margin: 1em 0 1em 1.7em;
+    padding-left: 1em;
+    border-left: 1px dashed #606060;
+    color: #606060;
+    font-size: .6em;
+}
+
+@media only screen and (max-width: 1300px) {
+    #TOC{	
+	position: relative !important;
+	width: inherit;
+	height: inherit;
+	border: none;
+    }
+
+    pre{
+	font-size: 16px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    pre{
+	font-size: 12px;
+    }
+}
+
+@media only screen and (max-width: 370px) {
+    pre{
+	font-size: 10px;
+    }
+}
+
+@media only screen and (max-width: 300px) {
+    pre{
+	font-size: 7px;
+    }
+}
+
+/** cod Syntax highlighting **/
+code span.fu{
+    color: #067e5c;
+}
+code span.cn{
+    color: #ff003c;
+}
+
+code span.kw{
+    color: teal;
+}

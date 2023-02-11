@@ -1,0 +1,15 @@
+[workspace]
+members = ["./krates/*"]
+exclude = ["./krates/klient"]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Jackson G. Kaindume"]
+description = "secure web node"
+documentation = "https://codeberg.org/i-Kong/kong"
+
+[workspace.dependencies]
+serde = { version = "1.0.144", features = ["derive"] }
+scrypt = "0.10.0"
+toml = "0.5.9"
+rusqlite = { version = "0.28.0", features = ["bundled"]}

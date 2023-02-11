@@ -1,0 +1,53 @@
+                              )                 
+                           ( /(          (  (   
+                            )\())(   (    )\))(  
+                           ((_)\ )\  )\ )((_))\  
+                           | |(_|(_)_(_/( (()(_) 
+                           | / / _ \ ' \)) _` |  
+                           |_\_\___/_||_|\__, |  
+                         secure web node |___/ v0.1.0
+
+Documentation
+=============
+  The documentation can be found in the `doc/` directory, it is
+  written in Markdown (.md) format.
+
+  - [doc/README.md]: Kong node (server) documentation
+  - [doc/API.md]: Kong is a secure web node
+  - [doc/DATA.md]: Documentation of the data structures used in `kong`
+    
+Components (krates)
+===================
+
+  Kong consists of severel components known as krates.
+
+  - [krates/kdata]: All the common data types used in kong
+  - [krates/kerror]: Kong error types
+  - [krates/klient]: Kong clients in Javascript and Dart
+  - [krates/kollection]: Kong database management
+  - [krates/konfig]: Kong node configuration
+  - [krates/konja]: Kong Pen-testing tools
+  - [krates/kontainer]: Kong LXC container management
+  - [krates/kore]: Kong core (runtime)
+  - [krates/krypto]: Kong cryptography and security related code
+
+Unlicense
+=========
+
+Written and placed in the public domain by Jackson G. Kaindume.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+For more information, please refer to the __UNLICENSE__ file in the
+repository.
+
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            Jackson G. Kaindume <kaindume@proton.me>
+                  www.kwatafana.codeberg.page
