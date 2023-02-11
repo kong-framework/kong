@@ -621,6 +621,7 @@ version = "0.1.0"
 name = "kollection"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "kdata",
  "kerror",
  "rusqlite",
