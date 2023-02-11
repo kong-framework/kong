@@ -1,0 +1,11 @@
+[package]
+name = "kore"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+kdata = { path = "../kdata/"}
+konfig = { path = "../konfig/"}
+kollection = { path = "../kollection/"}
