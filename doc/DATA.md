@@ -68,7 +68,7 @@ Data type to represent a physical property such as a house.
 | `agentid`       | ID of Agent representing the property                  | `Option<i64>` |
 | `description`   | Description of the property                            | `String`      |
 | `online_views`  | Number of online views the property got                | `u64`         |
-| `physical_view` | Number of physical irl views the property got          | `u16`         |
+| `physical_views` | Number of physical irl views the property got          | `u16`         |
 | `likes`         | Number of likes for the property                       | `u64`         |
 | `bookmarks`     | Number of bookmarks for the property                   | `u64`         |
 | `photos`        | Contains a JSON string with paths to the actual images | `String`      |

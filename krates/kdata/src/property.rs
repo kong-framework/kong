@@ -22,7 +22,7 @@ pub struct Property {
     /// Number of online views the property got
     pub online_views: u64,
     /// Number of physical irl views the property got
-    pub physical_view: u16,
+    pub physical_views: u16,
     /// Number of likes for the property
     pub likes: u64,
     /// Number of bookmarks for the property
