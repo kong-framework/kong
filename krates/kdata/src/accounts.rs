@@ -7,9 +7,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize)]
 pub struct Account {
     //--- Required Data ---//
-    /// Account’s unique username
+    /// Account's unique username
     pub username: String,
-    /// Account’s master key
+    /// Account's master key
     pub password: String,
     /// Date when account was created
     pub created: DateTime<Utc>,
@@ -23,19 +23,19 @@ pub struct Account {
     /// The gender of the account holder
     pub gender: Option<String>,
     //--- Optional Education Data ---//
-    /// User’s current school name
+    /// User's current school name
     pub current_school_name: Option<String>,
-    /// User’s student number
+    /// User's student number
     pub student_number: Option<String>,
     //--- Optional Bussiness Data ---//
     /// Name of the account's bussiness
     pub bussiness_name: Option<String>,
     //--- Optional Contact Data ---//
-    /// User’s email address
+    /// User's email address
     pub email: Option<String>,
-    /// Account owner’s mobile number
+    /// Account owner's mobile number
     pub mobile_number: Option<String>,
-    /// Account owner’s web-address
+    /// Account owner's web-address
     pub website: Option<String>,
     //--- Optional Meta Data ---//
     /// Short bio of Account
