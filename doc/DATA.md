@@ -54,6 +54,14 @@ Data used as input to create a new account.
 | `retyped_password` | Retyped password          | `String` |
 | `email`            | User's email address      | `String` |
 
+### 🌐 PublicAccount
+
+Account data that can be shown to the public (Other users, guests).
+
+| Field              | Description               | Type     |
+|--------------------|---------------------------|----------|
+| `username`         | Account's unique username | `String` |
+
 ___
 
 ## ℹ️ `NodeInfo`
