@@ -1,0 +1,6 @@
+[sys]
+containers = [
+    { name = "MyContainer1", distribution = "alpine", release = "3.16", architecture = "amd64" },
+    { name = "MyContainer2", distribution = "alpine", release = "3.16", architecture = "amd64" },
+    { name = "MyContainer3", distribution = "alpine", release = "3.16", architecture = "amd64" },
+]
