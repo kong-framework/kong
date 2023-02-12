@@ -196,7 +196,7 @@ impl Kollection {
         }
     }
 
-    pub fn create_account_account(&self, account: &Account) -> Result<(), KError> {
+    pub fn create_account(&self, account: &Account) -> Result<(), KError> {
         match &self.conn {
             Some(conn) => {
                 conn.execute(
@@ -327,7 +327,7 @@ mod test {
         };
 
         db.connect().unwrap();
-        db.create_account_account(&account);
+        db.create_account(&account);
 
         let public_account = db.get_account_by_email("admin@example.com").unwrap();
         let public_account1 = db.get_account_by_username("testuszee").unwrap();
