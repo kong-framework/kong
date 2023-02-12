@@ -27,8 +27,10 @@ Components (krates)
   - [krates/kollection]: Kong database management
   - [krates/konfig]: Kong node configuration
   - [krates/konja]: Kong Pen-testing tools
+  - [krates/konnect]: Kong HTTP based API
   - [krates/kontainer]: Kong LXC container management
   - [krates/kore]: Kong core (runtime)
+  - [krates/krouter]: Kong HTTP request router
   - [krates/krypto]: Kong cryptography and security related code
 
 Unlicense
