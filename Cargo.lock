@@ -747,6 +747,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "kong"
+version = "0.1.0"
+dependencies = [
+ "kdata",
+ "kerror",
+ "kollection",
+ "konfig",
+ "rouille",
+ "serde",
+]
+
+[[package]]
 name = "konja"
 version = "0.1.0"
 dependencies = [
@@ -757,39 +769,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "konnect"
-version = "0.1.0"
-dependencies = [
- "kdata",
- "kore",
- "rouille",
- "serde",
-]
-
-[[package]]
 name = "kontainer"
 version = "0.1.0"
 dependencies = [
  "serde",
  "toml",
-]
-
-[[package]]
-name = "kore"
-version = "0.1.0"
-dependencies = [
- "kdata",
- "kollection",
- "konfig",
-]
-
-[[package]]
-name = "krouter"
-version = "0.1.0"
-dependencies = [
- "konnect",
- "kore",
- "rouille",
 ]
 
 [[package]]
