@@ -60,14 +60,10 @@ ___
 
 ## 🖥️ Node
 
-### Features
+### Cargo Features
 
 | Feature            | Description                                                                                          |
 |--------------------|------------------------------------------------------------------------------------------------------|
-| `acc_personal`     | Enable accounts to have personal data as described by the [`PersonalData`](#personal-data) object    |
-| `acc_contact`      | Enable accounts to have contact data as described by the [`ContactData`](#contact-data) object       |
-| `acc_education`    | Enable accounts to have education data as described by the [`EducationData`](#education-data) object |
-| `acc_bussiness`    | Enable accounts to have bussiness data as described by the [`BussinessData`](#bussiness-data) object |
 | `sqlite`           | Use sqlite as the Node's database system                                                             |
 | `postgres`         | Use postgres as the Node's database system                                                           |
 | `node_information` | Enables an API route that serves information about the Kong node                               |
