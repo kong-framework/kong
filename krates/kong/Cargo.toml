@@ -1,0 +1,17 @@
+[package]
+name = "kong"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+sqlite = []
+
+[dependencies]
+kdata = { path = "../kdata/"}
+konfig = { path = "../konfig/"}
+kollection = { path = "../kollection/"}
+kerror = { path = "../kerror"}
+rouille.workspace = true
+serde.workspace = true
