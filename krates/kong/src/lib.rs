@@ -36,7 +36,7 @@ pub fn kroute(
     kore: &mut Kong,
     request: &rouille::Request,
     kustom_routes: Vec<konnect::KustomRoute>,
-    static_files_path: &str,
+    static_files_path: Option<&str>,
 ) -> rouille::Response {
     // Route built in APIs
     match request.url().as_str() {
@@ -53,11 +53,11 @@ pub fn kroute(
         }
     }
 
-    let response = rouille::match_assets(request, static_files_path);
-
-    if response.is_success() {
-        return response;
+    if let Some(path) = static_files_path {
+        let response = rouille::match_assets(request, path);
+        if response.is_success() {
+            return response;
+        }
     }
-
     rouille::Response::html("404 error").with_status_code(404)
 }
