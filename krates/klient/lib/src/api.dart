@@ -3,7 +3,7 @@ import 'package:kong/src/data.dart';
 import 'dart:convert';
 import 'package:kong/src/account.dart';
 
-/// Accounts API
+/// Kong API
 class KongAPI {
   KongAPI(this.api);
   final String api;
