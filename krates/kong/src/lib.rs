@@ -3,19 +3,20 @@ use kdata::accounts::Account;
 pub use kerror::KError;
 pub use kollection::Kollection;
 pub use konfig::Konfig;
-use konnect::Konnect;
+use kontrol::{Kontrol, Kontroller};
 use std::collections::HashMap;
 
-pub mod konnect;
+pub mod kontrol;
 
-pub struct Kong {
+pub struct Kong<'a> {
     pub database: Kollection,
     pub config: Konfig,
     pub admin_sessions: HashMap<String, Account>,
+    pub kontrollers: Vec<Kontroller<'a>>,
 }
 
-impl Kong {
-    pub fn new() -> Self {
+impl<'a> Kong<'a> {
+    pub fn new(kontrollers: Vec<Kontroller<'a>>) -> Self {
         let config = Konfig::read().unwrap();
         let database = Kollection::new(&config.admin_accounts_database);
         let admin_sessions = HashMap::new();
@@ -24,6 +25,7 @@ impl Kong {
             database,
             config,
             admin_sessions,
+            kontrollers,
         }
     }
     /// Start up runtime
@@ -32,29 +34,15 @@ impl Kong {
     }
 }
 
-pub fn kroute(
-    kore: &mut Kong,
-    request: &rouille::Request,
-    kustom_routes: Vec<konnect::KustomRoute>,
-    static_files_path: Option<&str>,
-) -> rouille::Response {
-    // Route built in APIs
-    match request.url().as_str() {
-        konnect::accounts::ADDRESS => {
-            return konnect::accounts::Accounts::handle_request(kore, request);
-        }
-        _ => (),
-    }
-
-    // Route user provided APIs
-    for route in kustom_routes {
-        if route.address == request.url().as_str() {
-            return (route.handler)(kore, request);
+pub fn kroute(kong: &mut Kong, request: &rouille::Request) -> rouille::Response {
+    for kontroller in &kong.kontrollers {
+        if kontroller.address == request.url().as_str() {
+            return (kontroller.handle)(kong, request);
         }
     }
 
-    if let Some(path) = static_files_path {
-        let response = rouille::match_assets(request, path);
+    if let Some(path) = &kong.config.static_files_path {
+        let response = rouille::match_assets(request, &path);
         if response.is_success() {
             return response;
         }

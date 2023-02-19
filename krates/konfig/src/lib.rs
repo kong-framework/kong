@@ -14,6 +14,8 @@ pub struct Konfig {
     pub admin_accounts_database: String,
     /// Name of the authorization session cookie id
     pub auth_cookie_name: String,
+    /// Path to static files
+    pub static_files_path: Option<String>,
 }
 
 impl Konfig {
