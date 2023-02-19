@@ -5,7 +5,7 @@ use serde::Serialize;
 pub mod accounts;
 
 /// Trait for an HTTP endpoint /  request handler
-pub trait Konnect {
+pub trait Kontrol {
     /// Check request HTTP methods and handle accordingly
     fn handle_request(kong: &mut Kong, req: &Request) -> Response {
         match req.method() {
@@ -22,12 +22,13 @@ pub trait Konnect {
     fn post(kong: &mut Kong, req: &Request) -> Response;
 }
 
-pub struct KustomRoute<'a> {
+/// Request Kontroller
+pub struct Kontroller<'a> {
     pub address: &'a str,
-    pub handler: fn(kong: &mut Kong, req: &Request) -> Response,
+    pub handle: fn(kong: &mut Kong, req: &Request) -> Response,
 }
 
 #[derive(Serialize)]
-pub struct KonnectError {
+pub struct KontrolError {
     msg: String,
 }

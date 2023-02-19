@@ -1,4 +1,4 @@
-use super::{Konnect, KonnectError};
+use super::{Kontrol, KontrolError};
 use crate::Kong;
 use kdata::{
     accounts::{Account, PublicAccount},
@@ -10,7 +10,7 @@ pub const ADDRESS: &str = "/accounts";
 
 pub struct Accounts;
 
-impl Konnect for Accounts {
+impl Kontrol for Accounts {
     fn post(kong: &mut Kong, req: &Request) -> Response {
         let input: AccountCreationInput = try_or_400!(rouille::input::json_input(&req));
 
@@ -23,7 +23,7 @@ impl Konnect for Accounts {
                 unimplemented!()
             }
         } else {
-            Response::json(&KonnectError {
+            Response::json(&KontrolError {
                 msg: "Email not provided".to_owned(),
             })
             .with_status_code(400)
@@ -41,7 +41,7 @@ impl Accounts {
                 Ok(acc) => {
                     if let Some(acc) = acc {
                         // email already in use
-                        Response::json(&KonnectError {
+                        Response::json(&KontrolError {
                             msg: "Email already in use.".to_owned(),
                         })
                         .with_status_code(401)
@@ -56,20 +56,20 @@ impl Accounts {
                                 let public_admin_account: PublicAccount = admin_account.into();
                                 Response::json(&public_admin_account).with_status_code(201)
                             }
-                            Err(error) => Response::json(&KonnectError {
+                            Err(error) => Response::json(&KontrolError {
                                 msg: "Could not create account".to_owned(),
                             })
                             .with_status_code(500),
                         }
                     }
                 }
-                Err(error) => Response::json(&KonnectError {
+                Err(error) => Response::json(&KontrolError {
                     msg: "Could not create account".to_owned(),
                 })
                 .with_status_code(500),
             }
         } else {
-            Response::json(&KonnectError {
+            Response::json(&KontrolError {
                 msg: "Email not provided".to_owned(),
             })
             .with_status_code(400)
