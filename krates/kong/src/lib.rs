@@ -35,18 +35,9 @@ impl<'a> Kong<'a> {
 }
 
 pub fn kroute(kong: &mut Kong, request: &rouille::Request) -> rouille::Response {
-    // Route built in APIs
-    match request.url().as_str() {
-        kontrol::accounts::ADDRESS => {
-            return kontrol::accounts::Accounts::handle_request(kong, request);
-        }
-        _ => (),
-    }
-
-    // Route user provided APIs
-    for route in &kong.kontrollers {
-        if route.address == request.url().as_str() {
-            return (route.handle)(kong, request);
+    for kontroller in &kong.kontrollers {
+        if kontroller.address == request.url().as_str() {
+            return (kontroller.handle)(kong, request);
         }
     }
 
