@@ -68,6 +68,7 @@ use std::fmt;
 
 #[derive(Debug)]
 pub enum ValidationError {
+    Generic,
     Username,
     Email,
     Password,
@@ -78,6 +79,7 @@ impl std::error::Error for ValidationError {}
 impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            ValidationError::Generic => write!(f, "General input error"),
             ValidationError::Username => write!(f, "Invalid username"),
             ValidationError::Email => write!(f, "Invalid email"),
             ValidationError::Password => write!(f, "Invalid password"),

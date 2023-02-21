@@ -1,6 +1,5 @@
-import 'package:kong/kong.dart';
+//import 'package:kong/kong.dart';
 
 void main() {
-  var awesome = Awesome();
-  print('awesome: ${awesome.isAwesome}');
+  print('awesome');
 }
