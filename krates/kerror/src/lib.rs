@@ -17,7 +17,7 @@ pub enum KError {
     /// Password hash verification
     PasswordVerifyHash,
     /// Configuration error
-    ConfigError,
+    Config,
 }
 
 impl std::error::Error for KError {}
@@ -35,7 +35,7 @@ impl fmt::Display for KError {
             Self::DbField => write!(f, "Could not refference the database table field"),
             Self::PasswordHashing => write!(f, "Could not hash password"),
             Self::PasswordVerifyHash => write!(f, "Could not verify password hash"),
-            Self::ConfigError => write!(f, "Could not read config file"),
+            Self::Config => write!(f, "Could not read config file"),
         }
     }
 }

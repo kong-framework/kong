@@ -25,8 +25,8 @@ impl Konfig {
         let arg = env::args().nth(1);
         match arg {
             Some(a) => {
-                let toml_str = fs::read_to_string(a).map_err(|_| KError::ConfigError)?;
-                let config: Konfig = toml::from_str(&toml_str).map_err(|_| KError::ConfigError)?;
+                let toml_str = fs::read_to_string(a).map_err(|_| KError::Config)?;
+                let config: Konfig = toml::from_str(&toml_str).map_err(|_| KError::Config)?;
                 Ok(config)
             }
             None => panic!("Path to config file is not provided!"),
