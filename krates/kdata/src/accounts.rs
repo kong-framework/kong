@@ -1,4 +1,4 @@
-use crate::inputs::AccountCreationInput;
+use crate::{inputs::AccountCreationInput, validate::ValidationError};
 use chrono::prelude::*;
 use krypto::Krypto;
 use serde::{Deserialize, Serialize};
@@ -45,7 +45,7 @@ pub struct Account {
 }
 
 impl From<AccountCreationInput> for Account {
-    fn from(input: AccountCreationInput) -> Self {
+    fn from(input: AccountCreationInput) -> Account {
         let password = Krypto::hash_password(&input.password).unwrap();
 
         Account {
@@ -59,7 +59,7 @@ impl From<AccountCreationInput> for Account {
             current_school_name: None,
             student_number: None,
             bussiness_name: None,
-            email: None,
+            email: input.email,
             mobile_number: None,
             website: None,
             description: None,
