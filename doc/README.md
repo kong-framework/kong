@@ -115,7 +115,7 @@ to hash users passwords before they are stored in the database (`kollection`).
 
 A cool way to prevent password leaks is by __obfuscating__ them
 with a password hash function which offer additional security 
-against bruteforce from specialliazed hardware such as asics. If 
+against bruteforce from specialized hardware such as asics. If 
 password hash functions are used and implemented correctly even the 
 administrators of the server will not be able to read the users 
 passwords especially if the server is open source and the users can
