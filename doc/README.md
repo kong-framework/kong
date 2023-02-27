@@ -1,133 +1,75 @@
 ---
-title: 🕸️🔐 Kong
+title: ⬡ Kong
 subtitle: Secure Web Node
-author: Jackson G. Kaindume <kaindume@proton.me>
-date: 2022
+author: Jackson G. Kaindume <cy6erlion@protonmail.com>
+date: 2020-2023
 ...
 ---
 
-# 🕸️🔐
 
-Kong is a secure web node.
+``` text
+                              )                 
+                           ( /(          (  (   
+                            )\())(   (    )\))(  
+                           ((_)\ )\  )\ )((_))\  
+                           | |(_|(_)_(_/( (()(_) 
+                           | / / _ \ ' \)) _` |  
+                           |_\_\___/_||_|\__, |  
+                         secure web node |___/ v0.1.0
+```
+
+# ⬡ Kong
 
 See also:
 
-- [🌐 Kong API Documentation](./api.html)
-- [🗄️ Kong Data Structures Documentation](./data.html)
+- [Kong API Documentation](./api.html)
+- [Kong Data Structures Documentation](./data.html)
 
 ## ✅ Features
 
-- Confidentiality
-- Intergrity
-- Availability
-- Database System
-- Session Management
-- HTTP+JSON API
-- Optional Federation
-- Built in HTTP server
-- Account Management
+- [ ] Confidentiality
+- [ ] Integrity
+- [ ] Availability
+- [ ] Database Management
+- [ ] Session Management
+- [ ] HTTP+JSON API
+- [ ] Optional Federation
+- [ ] Built in HTTP server
+- [ ] Account Management
 
 ___
 
-## 🧩 Components
+## 🧩 `krates`
 
-- [`web`](https://codeberg.org/kong/web): simple, secure mechanical web server framework [`rust`]
-- [`node`](https://codeberg.org/kong/node): secure web node [`rust`]
-- [`spinneret`](https://codeberg.org/kong/spinneret): Container runtime [`rust`]
-- [`h4`](https://codeberg.org/kong/h4): h4cking 700l$ [`rust`]
-- [`client`](https://codeberg.org/kong/client): Kong HTTP client. [`dart`]
+Kong consists of severel components known as `krates`.
 
-___
-
-## 🗃️ Database
-
-Kong stores structured data in a database. The following data is
-is stored:
-
-1. Accounts
-
-### Sqlite Support
-
-Sqlite is supported in Kong as an optional feature:
-
-```toml
-Kong = { path = "../../kong/phora", features = ["sqlite"] }
-```
-When the sqlite feature is enabled user account data will be saved in
-a sqlite database.
+- [[kdata]](data.html): All the common data types used in kong
+- [[kerror]](#kerror): Error types
+- [[klient]](#klient): Clients in Javascript and Dart
+- [[kollection]](#kollection): database management
+- [[konfig]](#konfig): Node configuration
+- [[kong]](#kong): Core server runtime
+- [[konja]](#konja): Pen-testing tools
+- [[kontainer]](#kontainer): LXC container management
+- [[krypto]](#krypto): Cryptography and security related code
 
 ___
 
-## 🖥️ Node
+### kollection
 
-### Cargo Features
+Kong stores structured data in a database. [SQLite](https://sqlite.org/)
+is the database management system that is used, with help from the 
+[rusqlite](https://sqlite.org/) crate.
 
-| Feature            | Description                                                                                          |
-|--------------------|------------------------------------------------------------------------------------------------------|
-| `sqlite`           | Use sqlite as the Node's database system                                                             |
-| `postgres`         | Use postgres as the Node's database system                                                           |
-| `node_information` | Enables an API route that serves information about the Kong node                               |
+The following data is stored the database:
 
-### Usage
+1. [`Accounts`](./data.html#account)
 
-#### 1. Cargo.toml
+### krypto
 
-Import the `Kong` crate in your project, with the required 
-features:
+#### Password Hashing
 
-```toml
-Kong = { git = "https://codeberg.org/kong/node.git" }
-```
-
-#### 2. Use crate
-
-```rust
-
-```
-___
-
-## 🕸️ Web
-
-> simple mechanical web server framework
-
-### Goals
-
-- Browsers should not should'nt need to guess the __content type__ of
-a document, it is up to the server to tell the browser (With the 
-`Content-type` header).
-
-___
-
-### Usage
-
-```rust
-main {
-  let routes = vec![router::Route {
-    path: "/".to_string(),
-    handler: route_handler,
-  }];
-  let router = Router::new(routes);
-	
-  let web = Web {
-    address: "127.0.0.1:7878".to_string(),
-    router,
-  };
-
-  // Start http server listening for the routes
-  web.start();
-}
-
-// Route handler
-fn route_handler<'a>(_con: TcpStream, _req: Request) {
-  unimplemented!();
-}
-```
-___
-
-## 🔐 Security
-### Password Hashing
-
-#### Why hash?
+##### Why hash?
 
 It is only a matter of time until your server gets hacked, and
 when that happens you don't want the users passwords to be leaked --
@@ -197,14 +139,10 @@ administrators of the server will not be able to read the users
 passwords especially if the server is open source and the users can
 audit the code for themselves.
 
-<https://www.troyhunt.com/our-password-hashing-has-no-clothes/>
-<https://paragonie.com/blog/2016/02/how-safely-store-password-in-2016>
-<https://www.troyhunt.com/passwords-evolved-authentication-guidance-for-the-modern-era/>
+#### References
 
-___
-
-## Validation
-
-<https://beesbuzz.biz/code/439-Falsehoods-programmers-believe-about-email>
+- <https://www.troyhunt.com/our-password-hashing-has-no-clothes/>
+- <https://paragonie.com/blog/2016/02/how-safely-store-password-in-2016>
+- <https://www.troyhunt.com/passwords-evolved-authentication-guidance-for-the-modern-era/>
 
 ___

@@ -122,3 +122,7 @@ ___
 | Field     | Description                                   | Type     |
 |-----------|-----------------------------------------------|----------|
 | `version` | Version of `kong`  running on the node. | `String` |
+
+## Validation
+
+<https://beesbuzz.biz/code/439-Falsehoods-programmers-believe-about-email>

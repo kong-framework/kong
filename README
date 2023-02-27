@@ -22,14 +22,14 @@ Components (krates)
   Kong consists of severel components known as krates.
 
   - [krates/kdata]: All the common data types used in kong
-  - [krates/kerror]: Kong error types
-  - [krates/klient]: Kong clients in Javascript and Dart
-  - [krates/kollection]: Kong database management
-  - [krates/konfig]: Kong node configuration
-  - [krates/konja]: Kong Pen-testing tools
-  - [krates/kontainer]: Kong LXC container management
-  - [krates/kong]: Kong core (runtime)
-  - [krates/krypto]: Kong cryptography and security related code
+  - [krates/kerror]: Error types
+  - [krates/klient]: Clients in Javascript and Dart
+  - [krates/kollection]: Database management
+  - [krates/konfig]: Node configuration
+  - [krates/kong]: Core server runtime
+  - [krates/konja]: Pen-testing tools
+  - [krates/kontainer]: LXC container management
+  - [krates/krypto]: Cryptography and security related code
 
 Unlicense
 =========
