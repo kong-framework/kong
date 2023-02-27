@@ -55,7 +55,7 @@ Kong consists of severel components known as `krates`.
 
 ___
 
-### kollection
+## kollection
 
 Kong stores structured data in a database. [SQLite](https://sqlite.org/)
 is the database management system that is used, with help from the 
@@ -65,74 +65,56 @@ The following data is stored the database:
 
 1. [`Accounts`](./data.html#account)
 
-### krypto
+---
 
-#### Password Hashing
+## krypto
 
-##### Why hash?
+### Password Hashing
 
-It is only a matter of time until your server gets hacked, and
-when that happens you don't want the users passwords to be leaked --
-this will allow the attacker to gain access to the users resources.
-Some users also use the same password across many services, your 
-web-server can be the root cause of a chain of breaches.
+#### Why hash?
+
+Web servers can get hacked, and when that happens you don't want the 
+passwords of the users to be leaked -- this will allow the attacker 
+to gain access to the users resources. Some users also use the same 
+password across many services, your web-server can be the root of a 
+chain of breaches.
 
 A cool way to prevent this type of leak is by __obfuscating__ the 
-users password with a [__hash function__](https://en.wikipedia.org/wiki/Hash_function).
+users passwords with a [__hash function__](https://en.wikipedia.org/wiki/Hash_function),
+before storing them in the database.
 
 There are lots of hash functions that can be used, but most of these 
-will be a bad idea to use. For example if you use SHA-256 or other 
+are a bad choice. For example if you choose SHA-256 or other 
 computationally cheap functions (hash function without a __work factor__ 
-parameter), they are vulnerable to rainbow table attacks.
-Bruteforce is also possible if the password length is short/known, 
-asic miners can generate 100 TeraHashes PER Second.
+parameter), they will be vulnerable to rainbow table attacks.
+Bruteforce is also easy if the password length is short/known, 
+asic miners can be used for bruteforce search, they can generate 100 
+TeraHashes PER Second.
 
-The server can increase the passwords entropy by concatenating it with
-a random string aka the __salt__. Users can also protect themselves 
-by using longer passwords.
+#### Password Hash Functions
 
 The best method to use against plaintext password leaks and rainbow
 table attacks is to use a __Password Hash Function__. Which is a hash 
-function specially designed to be slow/expensive to compute even on
-specialized hardware.
+function specially designed to be slow/expensive to compute/bruteforce
+even on specialized hardware.
 
-#### Scrypt [recommended]
+#### Scrypt Hash Function
 
-The [scrypt](https://www.tarsnap.com/scrypt.html) hash function uses large amounts of memory when hashing 
-making it expensive to scale to the point of reasonable bruteforce 
-attacks. Secure against hardware brute-force attacks.
+The [scrypt](https://www.tarsnap.com/scrypt.html) hash function uses large amounts of memory when hashing, 
+making it expensive to scale bruteforce attacks. `scrypt` is also 
+secure against hardware brute-force attacks.
 
-A number of cryptocurrencies use __scrypt__ for proof of work.
+In `kong` we use [`scrypt`](https://github.com/RustCrypto/password-hashes/tree/master/scrypt)
+to hash users passwords before they are stored in the database (`kollection`).
 
-Created by Colin Percival of [Tarsnap](https://en.wikipedia.org/wiki/Tarsnap)
+> A number of cryptocurrencies use __scrypt__ for proof of work.
 
-#### Argon2d [recommended]
-
-The [Argon2d](https://en.wikipedia.org/wiki/Argon2) function is 
-designed to resist GPU cracking attacks. Secure against hardware 
-brute-force attacks.
-
-It is the winner of [Password Hashing Competition](https://www.password-hashing.net/).
-
-#### Bcrypt
-
-[Bcrypt](https://en.wikipedia.org/wiki/Bcrypt) is based on the 
-[blowfish](https://en.wikipedia.org/wiki/Blowfish_(cipher)) cipher.
-
-Vulnerable against hardware brute-force attacks.
-
-#### PBKDF2
-
-[PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) is an key derivation
-function with a sliding computational cost to reduce bruteforce 
-search.
-
-Vulnerable against hardware brute-force attacks.
+> `scrypt` is created by Colin Percival of [Tarsnap](https://en.wikipedia.org/wiki/Tarsnap)
 
 #### Conclusion
 
 A cool way to prevent password leaks is by __obfuscating__ them
-with a password hash functions which offer additional security 
+with a password hash function which offer additional security 
 against bruteforce from specialliazed hardware such as asics. If 
 password hash functions are used and implemented correctly even the 
 administrators of the server will not be able to read the users 
@@ -146,3 +128,7 @@ audit the code for themselves.
 - <https://www.troyhunt.com/passwords-evolved-authentication-guidance-for-the-modern-era/>
 
 ___
+
+### Authentication and Authorization
+
+
