@@ -1,13 +1,13 @@
 ---
-title: 🗄️ Kong Data Structures Documentation
-subtitle: Secure Web Node
-author: Jackson G. Kaindume <kaindume@proton.me>
+title: 📄 Kong Data Schemas
+author: Jackson G. Kaindume <cy6erlion@protonmail.com>
+date: Last update 28.02.2023
 ...
 ---
 
-# 🗄️
+# 📄
 
-Documentation of the data structures used in `kong`.
+Documentation of the `kong` data structures.
 
 ## 👤 `Account`
 
@@ -126,3 +126,7 @@ ___
 ## Validation
 
 <https://beesbuzz.biz/code/439-Falsehoods-programmers-believe-about-email>
+
+---
+
+[[⬡]](./index.html) | [[⧉]](https://kwatafana.codeberg.page/)
