@@ -9,9 +9,19 @@ description = "secure web node"
 documentation = "https://codeberg.org/i-Kong/kong"
 
 [workspace.dependencies]
-serde = { version = "1.0.144", features = ["derive"] }
-scrypt = "0.10.0"
-toml = "0.5.9"
-chrono = { version = "0.4.23", features = ["serde"]}
-rusqlite = { version = "0.28.0", features = ["bundled", "chrono"]}
-rouille = "3.6.1"
+
+# [Data]
+serde = { version = "1.0.144", features = ["derive"] } # A generic serialization/deserialization framework 
+toml = "0.5.9" # Encoder and decoder of TOML-formatted files and streams
+base64 = "0.21.0" # encodes and decodes base64 as bytes or utf8
+rusqlite = { version = "0.28.0", features = ["bundled", "chrono"]} #  Ergonomic wrapper for SQLite 
+
+# [HTTP]
+rouille = "3.6.1" # 
+
+# [Cryptography]
+blake3 = "1.3.3" # A fast cryptographic hash function that is
+scrypt = "0.10.0" # The Scrypt key derivation function
+
+# [Misc]
+chrono = { version = "0.4.23", features = ["serde"]} # Date and time library
