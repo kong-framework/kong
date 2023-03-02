@@ -6,16 +6,17 @@
 //!
 //! ### Format
 //! ```text
-//! Base64([HOST][USERNAME][TIMESTAMP][SIGNATURE])
-//!          45B    15B       30B        32B
+//! Base64([USERNAME]@[HOST][TIMESTAMP][SIGNATURE])
+//!           15B      45B      30B        32B
 //! ```
+//! - __USERNAME__: The username of the entity the `kpassport` issued to.
+//! The maximum length is 15bytes because `kong` account username have a
+//! maximum length of 15 characters.
 //! - __HOST__: The issuer of the `kpassport` can be a, the maximum length
 //! 45bytes because that is the maximum IPv6 string length.  But any
 //! string identifier can be used not just IP addresses as long as it
 //! fits into 45bytes
-//! - __USERNAME__: The username of the entity the `kpassport` issued to.
-//! The maximum length is 15bytes because `kong` account username have a
-//! maximum length of 15 characters.
+//! - The __USERNAME__ and __HOST__ are seperated by the `@` characters (1byte)
 //! - __TIMESTAMP__: The time the `kpassport` was issued, it is 30bytes long
 //! - __SIGNATURE__: `blake3::keyed_hash()` of the `host`, `username` and `timestamp`,
 //! it is 32bytes long.
@@ -41,7 +42,7 @@
 //! bytes per domain). This means you can have 1 cookie of 4093 bytes,
 //! or 2 cookies of 2045 bytes, etc.
 //!
-//! __The maximum size of a `kpassport` is  122bytes__
+//! __The maximum size of a `kpassport` is  123bytes__
 //!
 //! #### Security
 //! - [ ] A `kpassport` is unique
@@ -101,17 +102,21 @@ use chrono::prelude::*;
 /// A username cannot be longer than 15 characters.
 /// A username can only contain alphanumeric characters (letters A-Z,
 /// numbers 0-9) with the exception of underscores, as noted above.
-pub const USERNAME_LENGTH_LIMIT: usize = 15;
+const USERNAME_LENGTH_LIMIT: usize = 15;
 
 /// The issuer of the `kpassport` can be a, the maximum length
 /// 45bytes because that is the maximum IPv6 string length.  But any
 /// string identifier can be used not just IP addresses as long as it
 /// fits into 45bytes
-pub const HOSTNAME_LENGTH_LIMIT: usize = 45;
+const HOSTNAME_LENGTH_LIMIT: usize = 45;
 
 /// The length of a timestamp created by chrono::Utc::now();
-pub const TIMESTAMP_LENGTH: usize = 30;
+const TIMESTAMP_LENGTH: usize = 30;
 
+/// The length of blake3::keyed_hash(), it is 32bytes long.
+const SIGNATURE_LENGTH: usize = 32;
+
+#[derive(Clone)]
 /// The content of a `kpassport`
 pub struct Content<'a> {
     /// Server or application that generated the kpassport
@@ -130,13 +135,15 @@ impl<'a> Content<'a> {
         let host_bytes: Vec<u8> = self.host.as_bytes().into();
         let username_bytes: Vec<u8> = self.username.as_bytes().to_vec();
         let timestamp_bytes: Vec<u8> = self.timestamp.to_string().as_bytes().to_vec();
+        let seperator: Vec<u8> = "@".as_bytes().to_vec();
 
-        let bytes: Vec<u8> = vec![host_bytes, username_bytes, timestamp_bytes]
+        let length_limit =
+            HOSTNAME_LENGTH_LIMIT + USERNAME_LENGTH_LIMIT + TIMESTAMP_LENGTH + seperator.len();
+
+        let bytes: Vec<u8> = vec![username_bytes, seperator, host_bytes, timestamp_bytes]
             .into_iter()
             .flatten()
             .collect();
-
-        let length_limit = HOSTNAME_LENGTH_LIMIT + USERNAME_LENGTH_LIMIT + TIMESTAMP_LENGTH;
 
         if bytes.len() > length_limit {
             Err(KryptoError::KpassportSize)
@@ -337,7 +344,7 @@ mod test {
 
         match export {
             Ok(kpassport_string) => {
-                assert!(kpassport_string.len() < 122);
+                assert!(kpassport_string.len() < 123);
             }
             Err(_) => panic!("Could not export kpassport"),
         }
