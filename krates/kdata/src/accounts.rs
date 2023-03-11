@@ -1,6 +1,5 @@
 use crate::{inputs::AccountCreationInput, validate::ValidationError};
 use chrono::prelude::*;
-use krypto::Krypto;
 use serde::{Deserialize, Serialize};
 
 /// A generic account
@@ -46,7 +45,7 @@ pub struct Account {
 
 impl From<AccountCreationInput> for Account {
     fn from(input: AccountCreationInput) -> Account {
-        let password = Krypto::hash_password(&input.password).unwrap();
+        let password = krypto::password::hash(&input.password).unwrap();
 
         Account {
             username: input.username,
