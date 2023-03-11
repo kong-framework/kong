@@ -12,9 +12,7 @@ Documentation
   The documentation can be found in the `doc/` directory, it is
   written in Markdown (.md) format.
 
-  - [doc/README.md]: Kong node (server) documentation
-  - [doc/API.md]: Documentation of the Kong HTTP APIs.
-  - [doc/DATA.md]: Documentation of the data structures used in `kong`
+  - [doc/README.md]: Kong
     
 Components (krates)
 ===================
