@@ -7,7 +7,7 @@
 //! ### Format
 //! ```text
 //! Base64([USERNAME]@[HOST][TIMESTAMP][SIGNATURE])
-//!           15B      45B      30B        32B
+//!           15B      45B      33B        32B
 //! ```
 //! - __USERNAME__: The username of the entity the `kpassport` issued to.
 //! The maximum length is 15bytes because `kong` account username have a
@@ -17,7 +17,7 @@
 //! string identifier can be used not just IP addresses as long as it
 //! fits into 45bytes
 //! - The __USERNAME__ and __HOST__ are seperated by the `@` characters (1byte)
-//! - __TIMESTAMP__: The time the `kpassport` was issued, it is 30bytes long
+//! - __TIMESTAMP__: The time the `kpassport` was issued, it is 3bytes long
 //! - __SIGNATURE__: `blake3::keyed_hash()` of the `host`, `username` and `timestamp`,
 //! it is 32bytes long.
 //!
@@ -42,7 +42,7 @@
 //! bytes per domain). This means you can have 1 cookie of 4093 bytes,
 //! or 2 cookies of 2045 bytes, etc.
 //!
-//! __The maximum size of a `kpassport` is  123bytes__
+//! __The maximum size of a `kpassport` is  125bytes__
 //!
 //! #### Security
 //! - [ ] A `kpassport` is unique
@@ -54,49 +54,12 @@
 //! The main idea is to store the user’s info in the `kpassport`.  And
 //! to secure it, have the user's info be signed using a secret that’s
 //! only known to the server.
-//!
-//! #### Attaching to HTTP requests
-//! Clients that request to access protected routes, need to provide a
-//! valid `kpassport`, they do this by attaching a `kpassport` with every
-//! request to a protected route. There are two ways to attach a
-//! `kpassport` to a request:
-//!
-//! 1. HTTP Cookie
-//!
-//! The cookies __Secure__ attribute is set, this ensures that the
-//! cookie is only sent over an HTTPS connection and not HTTP. This means
-//! that the cookie (`kpassport`) cannot be accessed by "MITM" attackers.
-//!
-//! The cookies __HttpOnly__ attribute is also set, this ensures that
-//! the cookie is inaccessible to the JavaScript `Document.cookie` API. So
-//! the cookie cannot be read or modified by client side JavaScript.
-//!
-//! Cookie expiration date is also set. It is calculated from
-//! the `kpassport`'s timestamp:
-//!
-//! ```
-//! TODO: how to calculate a cookies expiration date from a kpassport
-//! ```
-//!
-//! ```
-//! Set-Cookie: session=<kpassport kpassport>; Expires=Thu, 21 Oct 2021 07:28:00 GMT; Secure; HttpOnly
-//! ```
-//!
-//! 2.  Authorization header:
-//!
-//! A `kpassport` can be transported using HTTP headers, the
-//! kpassport is sent in the Authorization header:
-//!
-//! ```text
-//! Authorization: Bearer <the kpassport kpassport>
-//! ```
-//!
-//! #### Expiration
-//! A `kpassport` is timestamped at the time it is issued
 
 use crate::error::KryptoError;
 use base64::{engine::general_purpose, Engine as _};
+use blake3::Hash;
 use chrono::prelude::*;
+use std::str;
 
 /// The length of a username
 /// A username cannot be longer than 15 characters.
@@ -111,26 +74,26 @@ const USERNAME_LENGTH_LIMIT: usize = 15;
 const HOSTNAME_LENGTH_LIMIT: usize = 45;
 
 /// The length of a timestamp created by chrono::Utc::now();
-const TIMESTAMP_LENGTH: usize = 30;
+const TIMESTAMP_LENGTH: usize = 33;
 
 /// The length of blake3::keyed_hash(), it is 32bytes long.
 const SIGNATURE_LENGTH: usize = 32;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Debug)]
 /// The content of a `kpassport`
-pub struct Content<'a> {
-    /// Server or application that generated the kpassport
-    pub host: &'a str,
+pub struct Content {
     /// The user that is being that is handed the kpassport
-    pub username: &'a str,
+    pub username: String,
+    /// Server or application that generated the kpassport
+    pub host: String,
     /// The time when the kpassport was generated
     pub timestamp: DateTime<Utc>,
 }
 
-impl<'a> Content<'a> {
+impl Content {
     /// Convert content to a string of bytes that can be signed
     /// the maximum length of the content is 90 bytes (45bytes for
-    /// the host, 15bytes for the username and 30bytes for the signature)
+    /// the host, 15bytes for the username and 33bytes for the timestamp)
     pub fn as_bytes(&self) -> Result<Vec<u8>, KryptoError> {
         let host_bytes: Vec<u8> = self.host.as_bytes().into();
         let username_bytes: Vec<u8> = self.username.as_bytes().to_vec();
@@ -151,19 +114,96 @@ impl<'a> Content<'a> {
             Ok(bytes)
         }
     }
+
+    /// Derive a kpassport's content from bytes
+    fn from_bytes(bytes: Vec<u8>) -> Result<Self, KryptoError> {
+        let username = Content::get_username(bytes.clone())?;
+        let host = Content::get_host(bytes.clone())?;
+        let timestamp = Content::get_timestamp(bytes.clone())?;
+
+        Ok(Content {
+            username,
+            host,
+            timestamp,
+        })
+    }
+
+    /// Get username from bytes
+    fn get_username(bytes: Vec<u8>) -> Result<String, KryptoError> {
+        let seperator_index = Content::get_seperator_index(bytes.clone())?;
+        if let Some(username_bytes) = bytes.get(0..seperator_index) {
+            let username = str::from_utf8(username_bytes);
+
+            match username {
+                Ok(username) => return Ok(String::from(username)),
+                Err(_) => return Err(KryptoError::InvalidKpassportUsername),
+            }
+        }
+        Err(KryptoError::InvalidKpassportUsername)
+    }
+
+    /// Get host from bytes
+    fn get_host(bytes: Vec<u8>) -> Result<String, KryptoError> {
+        let seperator_index = Content::get_seperator_index(bytes.clone())?;
+        let timestamp_start = bytes.len() - TIMESTAMP_LENGTH;
+
+        if let Some(host_bytes) = bytes.get(seperator_index + 1..timestamp_start) {
+            let host = str::from_utf8(host_bytes);
+
+            match host {
+                Ok(host) => return Ok(String::from(host)),
+                Err(_) => return Err(KryptoError::InvalidKpassportHost),
+            }
+        }
+        Err(KryptoError::InvalidKpassportHost)
+    }
+
+    /// Get timestamp from bytes
+    fn get_timestamp(bytes: Vec<u8>) -> Result<DateTime<Utc>, KryptoError> {
+        let timestamp_start = bytes.len() - TIMESTAMP_LENGTH;
+
+        if let Some(timestamp_bytes) = bytes.get(timestamp_start..) {
+            let timestamp_str = str::from_utf8(timestamp_bytes);
+
+            match timestamp_str {
+                Ok(timestamp_str) => {
+                    let timestamp = timestamp_str.parse::<DateTime<Utc>>();
+
+                    match timestamp {
+                        Ok(timestamp) => return Ok(timestamp),
+                        Err(_) => return Err(KryptoError::InvalidKpassportTimestamp),
+                    }
+                }
+                Err(_) => return Err(KryptoError::InvalidKpassportTimestamp),
+            }
+        }
+        Err(KryptoError::InvalidKpassportTimestamp)
+    }
+
+    /// Get the index of a `kpassport` username and host seperator
+    fn get_seperator_index(kpassport_bytes: Vec<u8>) -> Result<usize, KryptoError> {
+        for i in 0..kpassport_bytes.len() {
+            if kpassport_bytes[i] == b"@"[0] {
+                return Ok(i);
+            }
+        }
+
+        Err(KryptoError::MissingUsernameHostSeperator)
+    }
 }
 
+#[derive(Clone, PartialEq, Debug)]
 /// The `kpassport` authorization token
-pub struct Kpassport<'a> {
+pub struct Kpassport {
     /// Kpassport content
-    pub content: Content<'a>,
+    pub content: Content,
     /// The signature of the kpassport
     pub signature: Option<blake3::Hash>,
 }
 
-impl<'a> Kpassport<'a> {
+impl Kpassport {
     /// Generates a new __unsigned__ `kpassport`
-    pub fn new_unsigned(host: &'a str, username: &'a str) -> Result<Kpassport<'a>, KryptoError> {
+    pub fn new_unsigned(host: &str, username: &str) -> Result<Kpassport, KryptoError> {
         if username.len() > USERNAME_LENGTH_LIMIT {
             return Err(KryptoError::KpassportSize);
         }
@@ -173,8 +213,8 @@ impl<'a> Kpassport<'a> {
         }
 
         let content = Content {
-            host,
-            username,
+            host: host.to_string(),
+            username: username.to_string(),
             timestamp: Utc::now(),
         };
 
@@ -187,7 +227,7 @@ impl<'a> Kpassport<'a> {
     /// Sign the __kpassport__
     pub fn sign(&mut self, key: &str) -> Result<(), KryptoError> {
         let key_derivation_context = crate::key_derivation::Context {
-            host: self.content.host,
+            host: &self.content.host,
             timestamp: self.content.timestamp,
         };
 
@@ -201,7 +241,7 @@ impl<'a> Kpassport<'a> {
     pub fn validate(&self, key: &str) -> Result<(), KryptoError> {
         if let Some(signature) = self.signature {
             let key_derivation_context = crate::key_derivation::Context {
-                host: self.content.host,
+                host: &self.content.host,
                 timestamp: self.content.timestamp,
             };
 
@@ -235,6 +275,60 @@ impl<'a> Kpassport<'a> {
             Err(KryptoError::KpassportNotSigned)
         }
     }
+
+    /// Derive a `kpassport` from a base64 encoded string
+    pub fn from_str(kpassport_str: &str) -> Result<Kpassport, KryptoError> {
+        let kpassport_bytes = Kpassport::as_bytes(kpassport_str)?;
+        let content_bytes = Kpassport::get_content_bytes(&kpassport_bytes)?;
+        let signature_bytes = Kpassport::get_signature_bytes(&kpassport_bytes)?;
+
+        Ok(Kpassport {
+            content: Content::from_bytes(content_bytes.to_vec())?,
+            signature: Some(Kpassport::signature_from_bytes(signature_bytes.to_vec())?),
+        })
+    }
+
+    pub fn signature_from_bytes(bytes: Vec<u8>) -> Result<Hash, KryptoError> {
+        let signature_hex = hex::encode(bytes);
+        let signature = Hash::from_hex(signature_hex);
+
+        match signature {
+            Ok(signature) => Ok(signature),
+            Err(_) => Err(KryptoError::InvalidKpassportSignature),
+        }
+    }
+
+    /// Convert a `kpassport` base64 encoded string to bytes
+    fn as_bytes(kpassport_str: &str) -> Result<Vec<u8>, KryptoError> {
+        let bytes = general_purpose::URL_SAFE.decode(kpassport_str);
+
+        match bytes {
+            Ok(b) => Ok(b),
+            Err(_) => Err(KryptoError::InvalidKpassport),
+        }
+    }
+
+    /// Get Kpassport Content bytes from kpassport bytes
+    fn get_content_bytes(kpassport_bytes: &[u8]) -> Result<&[u8], KryptoError> {
+        let kpassport_content_length = kpassport_bytes.len() - SIGNATURE_LENGTH;
+
+        if let Some(content_bytes) = kpassport_bytes.get(0..kpassport_content_length) {
+            Ok(content_bytes)
+        } else {
+            Err(KryptoError::InvalidKpassport)
+        }
+    }
+
+    /// Get Kpassport Signature bytes from kpassport bytes
+    fn get_signature_bytes(kpassport_bytes: &[u8]) -> Result<&[u8], KryptoError> {
+        let kpassport_content_length = kpassport_bytes.len() - SIGNATURE_LENGTH;
+
+        if let Some(signature_bytes) = kpassport_bytes.get(kpassport_content_length..) {
+            Ok(signature_bytes)
+        } else {
+            Err(KryptoError::InvalidKpassport)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -244,13 +338,13 @@ mod test {
     #[test]
     fn kpassport_content_as_bytes() {
         let content = Content {
-            host: "fdjdkfdjk",
-            username: "kjkdffdjdfjf",
+            host: "fdjdkfdjk".to_string(),
+            username: "kjkdffdjdfjf".to_string(),
             timestamp: chrono::Utc::now(),
         };
         let content2 = Content {
-            host: "fdjdkfdjk",
-            username: "kjkdffdjdfjfkdfjdfddkffdjdfjdflkdjdflkdflddflkdfjldfjdljdkjdfkldfldfjlkdjdkljdfkjdfkldjdkjdfkdjfkdfjdkfjdfkdf",
+            host: "fdjdkfdjk".to_string(),
+            username: "kjkdffdjdfjfkdfjdfddkffdjdfjdflkdjdflkdflddflkdfjldfjdljdkjdfkldfldfjlkdjdkljdfkjdfkldjdkjdfkdjfkdfjdkfjdfkdf".to_string(),
             timestamp: chrono::Utc::now(),
         };
 
@@ -264,6 +358,94 @@ mod test {
         if content2_bytes.is_ok() {
             panic!("Should error because the username is too large");
         }
+    }
+
+    #[test]
+    fn kpassport_content_from_bytes() {
+        let content = Content {
+            host: "fdjdkfdjk".to_string(),
+            username: "kjkdffdjdfjf".to_string(),
+            timestamp: chrono::Utc::now(),
+        };
+        let content_bytes = content.as_bytes().unwrap();
+        let content2 = Content::from_bytes(content_bytes).unwrap();
+
+        assert_eq!(content.username, content2.username);
+        assert_eq!(content.host, content2.host);
+        assert_eq!(content.timestamp, content2.timestamp);
+    }
+    #[test]
+    fn get_username_from_kpassport_content_bytes() {
+        let content = Content {
+            host: "fdjdkfdjk".to_string(),
+            username: "kjkdffdjdfjf".to_string(),
+            timestamp: chrono::Utc::now(),
+        };
+        let content_bytes = content.as_bytes().unwrap();
+
+        assert_eq!(
+            content.username,
+            Content::get_username(content_bytes.clone()).unwrap()
+        );
+
+        assert_ne!(
+            "wrong username",
+            Content::get_username(content_bytes).unwrap()
+        );
+    }
+
+    #[test]
+    fn get_host_from_kpassport_content_bytes() {
+        let content = Content {
+            host: "fdjdkfdjk".to_string(),
+            username: "kjkdffdjdfjf".to_string(),
+            timestamp: chrono::Utc::now(),
+        };
+        let content_bytes = content.as_bytes().unwrap();
+
+        assert_eq!(
+            content.host,
+            Content::get_host(content_bytes.clone()).unwrap()
+        );
+
+        assert_ne!("wrong host", Content::get_host(content_bytes).unwrap());
+
+        let content = Content {
+            host: "ddlneuykjnnrsslin".to_string(),
+            username: "difimnnn".to_string(),
+            timestamp: chrono::Utc::now(),
+        };
+        let content_bytes = content.as_bytes().unwrap();
+
+        assert_eq!(
+            content.host,
+            Content::get_host(content_bytes.clone()).unwrap()
+        );
+
+        assert_ne!(
+            "wrong host very wrong",
+            Content::get_host(content_bytes).unwrap()
+        );
+    }
+
+    #[test]
+    fn get_timestamp_from_kpassport_content_bytes() {
+        let content = Content {
+            host: "fdjdkfdjk".to_string(),
+            username: "kjkdffdjdfjf".to_string(),
+            timestamp: chrono::Utc::now(),
+        };
+        let content_bytes = content.as_bytes().unwrap();
+
+        assert_eq!(
+            content.timestamp,
+            Content::get_timestamp(content_bytes.clone()).unwrap()
+        );
+
+        assert_ne!(
+            "wrong username",
+            Content::get_username(content_bytes).unwrap()
+        );
     }
 
     #[test]
@@ -344,9 +526,47 @@ mod test {
 
         match export {
             Ok(kpassport_string) => {
-                assert!(kpassport_string.len() < 123);
+                assert!(kpassport_string.len() < 125);
             }
             Err(_) => panic!("Could not export kpassport"),
         }
+    }
+
+    #[test]
+    fn signature_from_bytes() {
+        let mut kpassport = Kpassport::new_unsigned("My App", "my_username").unwrap();
+        let key = "My super secret signing key";
+        kpassport.sign(key).unwrap();
+
+        match kpassport.signature {
+            Some(signature) => {
+                let signature_bytes = signature.as_bytes();
+                let signature_hex = hex::encode(signature_bytes);
+                let derived_signature = Hash::from_hex(signature_hex).unwrap();
+                assert_eq!(signature, derived_signature);
+
+                let key_derivation_context = crate::key_derivation::Context {
+                    host: "www.example.com",
+                    timestamp: Utc::now(),
+                };
+                let derived_key =
+                    crate::key_derivation::derive_key(key_derivation_context, key.as_bytes());
+                let wrong_hash = blake3::keyed_hash(&derived_key, b"wrong content");
+                assert_ne!(wrong_hash, signature);
+            }
+            None => panic!("Kpassport not signed"),
+        }
+    }
+
+    #[test]
+    fn from_str() {
+        let mut kpassport = Kpassport::new_unsigned("myusername", "myhostname").unwrap();
+        kpassport.sign("secret key").unwrap();
+        let kpassport_str = kpassport.clone().export().unwrap();
+        let derived_kpassport = Kpassport::from_str(&kpassport_str).unwrap();
+
+        assert_eq!(kpassport.content, derived_kpassport.content);
+        assert_eq!(kpassport.signature, derived_kpassport.signature);
+        assert_eq!(kpassport, derived_kpassport);
     }
 }
