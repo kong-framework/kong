@@ -77,7 +77,7 @@ pub fn hash(cleartext_password: &str) -> Result<String, KError> {
 
 /// Check if a scrypt hash matches the password cleartext
 pub fn verify(password_hash: &str, password_cleartext: &str) -> Result<bool, KError> {
-    let parsed_hash = PasswordHash::new(&password_hash).map_err(|_| KError::PasswordVerifyHash)?;
+    let parsed_hash = PasswordHash::new(password_hash).map_err(|_| KError::PasswordVerifyHash)?;
     if Scrypt
         .verify_password(password_cleartext.as_bytes(), &parsed_hash)
         .is_ok()
