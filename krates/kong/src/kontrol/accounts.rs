@@ -13,14 +13,22 @@ pub struct AccountsKontroller;
 impl Kontrol for AccountsKontroller {
     fn post(kong: &mut Kong, request: &Request) -> Response {
         let input: AccountCreationInput = try_or_400!(rouille::input::json_input(request));
-        let validation_result = input.is_valid();
 
-        match validation_result {
-            Ok(_) => AccountsKontroller::create(input, kong),
-            Err(_) => Response::json(&KontrolError {
+        if Self::validate_user_input(input.clone()) {
+            AccountsKontroller::create(input, kong)
+        } else {
+            Response::json(&KontrolError {
                 msg: "Invalid Input".to_owned(),
             })
-            .with_status_code(400),
+            .with_status_code(400)
+        }
+    }
+
+    fn validate_user_input(input: impl kdata::inputs::UserInput) -> bool {
+        if input.is_valid().is_ok() {
+            true
+        } else {
+            false
         }
     }
 }
@@ -34,11 +42,17 @@ impl AccountsKontroller {
                 let public_account: PublicAccount = account.into();
                 Response::json(&public_account).with_status_code(201)
             }
-            // TODO: Better error handling
-            Err(_) => Response::json(&KontrolError {
-                msg: "Could not create account".to_owned(),
-            })
-            .with_status_code(500),
+
+            Err(err) => match err {
+                kerror::KError::DbField => Response::json(&KontrolError {
+                    msg: "Invalid input".to_owned(),
+                })
+                .with_status_code(401),
+                _ => Response::json(&KontrolError {
+                    msg: "Could not create account".to_owned(),
+                })
+                .with_status_code(500),
+            },
         }
     }
 }

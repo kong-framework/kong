@@ -16,6 +16,10 @@ pub struct Konfig {
     pub auth_cookie_name: String,
     /// Path to static files
     pub static_files_path: Option<String>,
+    /// Node host
+    pub host: String,
+    /// Kong secret key
+    pub secret_key: String,
 }
 
 impl Konfig {
