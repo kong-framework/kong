@@ -123,7 +123,7 @@ impl Kollection {
         }
     }
 
-    fn get_account_by_username(&self, username: &str) -> Result<Option<PublicAccount>, KError> {
+    pub fn get_account_by_username(&self, username: &str) -> Result<Option<PublicAccount>, KError> {
         match &self.conn {
             Some(conn) => {
                 let mut stmt = conn
