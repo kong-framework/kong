@@ -22,10 +22,10 @@ Components (krates)
   - [krates/kdata]: All the common data types used in kong
   - [krates/kerror]: Error types
   - [krates/klient]: Clients in Javascript and Dart
+  - [krates/kogs]: Addons/Plugins
   - [krates/kollection]: Database management
   - [krates/konfig]: Node configuration
   - [krates/kong]: Core server runtime
-  - [krates/konja]: Pen-testing tools
   - [krates/kontainer]: LXC container management
   - [krates/krypto]: Cryptography and security related code
 
@@ -44,5 +44,5 @@ repository.
 
 
 ----------------------------------------------------------------------
-            Jackson G. Kaindume <kaindume@proton.me>
-                  www.kwatafana.codeberg.page
+            Jackson G. Kaindume <cy6erlion@protonmail.com>
+                  https://kwatafana.github.io/www/
