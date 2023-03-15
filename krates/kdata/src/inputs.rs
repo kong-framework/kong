@@ -1,5 +1,5 @@
 use crate::validate::{Validate, ValidationError};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Data used as input to create a new account.
 #[derive(Deserialize)]
