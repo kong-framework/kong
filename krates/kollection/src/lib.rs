@@ -12,7 +12,7 @@ pub mod sql {
         id INTEGER PRIMARY KEY,                      -- The Identifier of the account, the Rust Type is `i64`
         username TEXT UNIQUE NOT NULL,               -- The username of the account
         password TEXT NOT NULL,                      -- The user's login password
-        created TEXT DEFAULT(date('now')) NOT NULL,  -- The date when the account was created, the Rust Type is `chrono::DateTime`
+        created TEXT NOT NULL,                       -- The date when the account was created, the Rust Type is `chrono::DateTime`
         fullname TEXT,                               -- Fullname of the account
         date_of_birth TEXT,                          -- The date when the account holder was born
         id_number TEXT,                              -- ID number of the account owner
@@ -37,9 +37,10 @@ pub mod sql {
       INSERT INTO accounts (
         username,
         email,
-        password
+        password,
+        created
        )
-      VALUES (?1, ?2, ?3)";
+      VALUES (?1, ?2, ?3, ?4)";
 
     pub const CREATE_PROPERTIES_TABLE: &str = "
       CREATE TABLE IF NOT EXISTS properties (
@@ -201,7 +202,12 @@ impl Kollection {
             Some(conn) => {
                 conn.execute(
                     sql::CREATE_ACCOUNT,
-                    params![&account.username, &account.email, account.password],
+                    params![
+                        &account.username,
+                        &account.email,
+                        account.password,
+                        account.created
+                    ],
                 )
                 .map_err(|_| KError::DbField)?;
                 Ok(())
@@ -327,7 +333,7 @@ mod test {
         };
 
         db.connect().unwrap();
-        db.create_account(&account);
+        db.create_account(&account).unwrap();
 
         let public_account = db.get_account_by_email("admin@example.com").unwrap();
         let public_account1 = db.get_account_by_username("testuszee").unwrap();
