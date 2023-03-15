@@ -176,6 +176,43 @@ impl Kollection {
                     Some(s) => Ok(Some(Account {
                         username: s.get(1).map_err(|_| KError::DbField)?,
                         password: s.get(2).map_err(|_| KError::DbField)?,
+                        created: s.get(3).unwrap(), //.map_err(|_| KError::DbField)?,
+                        fullname: s.get(4).map_err(|_| KError::DbField)?,
+                        date_of_birth: s.get(5).map_err(|_| KError::DbField)?,
+                        id_number: s.get(6).map_err(|_| KError::DbField)?,
+                        gender: s.get(7).map_err(|_| KError::DbField)?,
+                        current_school_name: s.get(8).map_err(|_| KError::DbField)?,
+                        student_number: s.get(9).map_err(|_| KError::DbField)?,
+                        bussiness_name: s.get(10).map_err(|_| KError::DbField)?,
+                        email: s.get(11).map_err(|_| KError::DbField)?,
+                        mobile_number: s.get(12).map_err(|_| KError::DbField)?,
+                        website: s.get(13).map_err(|_| KError::DbField)?,
+                        description: s.get(14).map_err(|_| KError::DbField)?,
+                        last_login: s.get(15).map_err(|_| KError::DbField)?,
+                    })),
+                    None => Ok(None),
+                }
+            }
+            None => Err(KError::DbConnection),
+        }
+    }
+
+    pub fn get_account_by_username_private(
+        &self,
+        username: &str,
+    ) -> Result<Option<Account>, KError> {
+        match &self.conn {
+            Some(conn) => {
+                let mut stmt = conn
+                    .prepare(sql::GET_ACCOUNT_BY_USERNAME)
+                    .map_err(|_| KError::DbSQL)?;
+                let mut rows = stmt
+                    .query(&[(":username", username)])
+                    .map_err(|_| KError::DbSQL)?;
+                match rows.next().map_err(|_| KError::DbSQL)? {
+                    Some(s) => Ok(Some(Account {
+                        username: s.get(1).map_err(|_| KError::DbField)?,
+                        password: s.get(2).map_err(|_| KError::DbField)?,
                         created: s.get(3).map_err(|_| KError::DbField)?,
                         fullname: s.get(4).map_err(|_| KError::DbField)?,
                         date_of_birth: s.get(5).map_err(|_| KError::DbField)?,
@@ -291,7 +328,7 @@ impl Kollection {
 
 #[cfg(test)]
 mod test {
-    use chrono::{DateTime, Utc};
+    use chrono::Utc;
 
     use super::*;
 
@@ -337,6 +374,47 @@ mod test {
 
         let public_account = db.get_account_by_email("admin@example.com").unwrap();
         let public_account1 = db.get_account_by_username("testuszee").unwrap();
+
+        if let Some(_) = public_account {
+            assert!(true)
+        } else {
+            panic!("Account not found")
+        }
+
+        if let Some(_) = public_account1 {
+            assert!(true)
+        } else {
+            panic!("Account not found")
+        }
+    }
+
+    #[test]
+    fn test_store_get_account_account_private() {
+        //remove_test_db();
+        let mut db = Kollection::new(TEST_DB_PATH);
+        let account = Account {
+            username: String::from("testus"),
+            password: String::from("12345678910"),
+            created: Utc::now(),
+            fullname: None,
+            date_of_birth: None,
+            id_number: None,
+            gender: None,
+            current_school_name: None,
+            student_number: None,
+            bussiness_name: None,
+            email: Some("admin@ple.com".to_string()),
+            mobile_number: None,
+            website: None,
+            description: None,
+            last_login: None,
+        };
+
+        db.connect().unwrap();
+        db.create_account(&account).unwrap();
+
+        let public_account = db.get_account_by_email_private("admin@ple.com").unwrap();
+        let public_account1 = db.get_account_by_username_private("testus").unwrap();
 
         if let Some(_) = public_account {
             assert!(true)
