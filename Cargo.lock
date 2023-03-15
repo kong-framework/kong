@@ -504,13 +504,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kaddon"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "kdata"
 version = "0.1.0"
 dependencies = [
@@ -522,6 +515,13 @@ dependencies = [
 [[package]]
 name = "kerror"
 version = "0.1.0"
+
+[[package]]
+name = "kogs"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "kollection"
