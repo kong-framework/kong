@@ -1,8 +1,9 @@
 use crate::Kong;
+use kdata::inputs::UserInput;
 use rouille::{Request, Response};
 use serde::Serialize;
-
 pub mod accounts;
+pub mod auth;
 
 /// Trait for an HTTP endpoint /  request handler
 pub trait Kontrol {
@@ -17,6 +18,8 @@ pub trait Kontrol {
             .with_status_code(404),
         }
     }
+
+    fn validate_user_input(input: impl UserInput) -> bool;
 
     /// Handle request from a HTTP POST method
     fn post(kong: &mut Kong, req: &Request) -> Response;

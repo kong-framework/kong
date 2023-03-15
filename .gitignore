@@ -1,4 +1,4 @@
 *~
 target
 krates/kollection/test-data
-doc/*.html
+doc/pub/*.html

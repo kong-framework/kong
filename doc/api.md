@@ -1,14 +1,13 @@
 ---
-title: 🌐 Kong API
-subtitle: Secure Web Node
-author: Jackson G. Kaindume <kaindume@proton.me>
-date: 2022
+title: 🌐 Kong HTTP API
+author: Jackson G. Kaindume <cy6erlion@protonmail.com>
+date: Last update 28.02.2023
 ...
 ---
 
 # 🌐
 
-Documentation of the Kong HTTP APIs.
+Documentation of the `kong` HTTP APIs.
 
 ___
 
@@ -64,3 +63,7 @@ Creates a new account object.
 #### HTTP HEADERS & Media Types
 
 // TODO
+
+---
+
+[[⬡]](./index.html) | [[⧉]](https://kwatafana.codeberg.page/)
