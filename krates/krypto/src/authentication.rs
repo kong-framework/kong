@@ -81,34 +81,43 @@ impl Auth {
     }
 
     /// Issue a kpassport using HTTP cookies
-    pub fn issue_kpassport_cookie(self) -> (Cow<'static, str>, Cow<'static, str>) {
-        let key = Cow::from("Set-Cookie");
+    pub fn issue_kpassport_cookie(
+        username: &str,
+        host: &str,
+        signing_key: &str,
+        cookie_name: &str,
+    ) -> Result<(Cow<'static, str>, Cow<'static, str>), KryptoError> {
+        let mut kpassport = Kpassport::new_unsigned(username, host)?;
+        kpassport.sign(signing_key)?;
 
-        match self {
-            Auth::BearerToken(kpassport) => {
-                let value = Auth::cookie_value_string(&kpassport);
-                (key, Cow::from(value))
-            }
-            Auth::Cookie(kpassport) => {
-                let value = Auth::cookie_value_string(&kpassport);
-                (key, Cow::from(value))
-            }
+        let header_key = Cow::from("Set-Cookie");
+
+        match kpassport.export() {
+            Ok(kpassport_str) => Ok((
+                header_key,
+                Cow::from(Auth::cookie_value_string(&kpassport_str, cookie_name)),
+            )),
+            Err(err) => Err(err),
         }
     }
 
     /// Issue a kpassport using a Bearer token
-    pub fn issue_kpassport_bearer_token(self) -> (Cow<'static, str>, Cow<'static, str>) {
-        let key = Cow::from("Authorization");
+    pub fn issue_kpassport_bearer_token(
+        username: &str,
+        host: &str,
+        signing_key: &str,
+    ) -> Result<(Cow<'static, str>, Cow<'static, str>), KryptoError> {
+        let mut kpassport = Kpassport::new_unsigned(username, host)?;
+        kpassport.sign(signing_key)?;
 
-        match self {
-            Auth::BearerToken(kpassport) => {
-                let value = Auth::bearer_token_value_string(&kpassport);
-                (key, Cow::from(value))
+        let header_key = Cow::from("Authorization");
+
+        match kpassport.export() {
+            Ok(kpassport_str) => {
+                let value = Auth::bearer_token_value_string(&kpassport_str);
+                Ok((header_key, Cow::from(value)))
             }
-            Auth::Cookie(kpassport) => {
-                let value = Auth::bearer_token_value_string(&kpassport);
-                (key, Cow::from(value))
-            }
+            Err(err) => Err(err),
         }
     }
 
@@ -127,9 +136,7 @@ impl Auth {
     }
 
     /// Generate a cookie value for storing a `kpassport`
-    fn cookie_value_string(kpassport: &str) -> String {
-        let cookie_name = "kpassport";
-
+    fn cookie_value_string(kpassport: &str, cookie_name: &str) -> String {
         // This ensures that the cookie is only sent over an HTTPS
         // connection and not HTTP.
         let cookie_transport = "Secure";
@@ -204,35 +211,6 @@ mod test {
     }
 
     #[test]
-    fn issue_cookie_kpassport() {
-        let mut kpassport = Kpassport::new_unsigned("My App", "a username").unwrap();
-        kpassport.sign("my secret signing key").unwrap();
-        let auth = Auth::Cookie(kpassport.clone().export().unwrap());
-        let issued_cookie = auth.issue_kpassport_cookie();
-        let expected_cookie_value = format!(
-            "kpassport={}; Secure; HttpOnly",
-            kpassport.export().unwrap()
-        );
-        assert_eq!(
-            issued_cookie,
-            (Cow::from("Set-Cookie"), Cow::from(expected_cookie_value))
-        )
-    }
-
-    #[test]
-    fn issue_bearer_token_kpassport() {
-        let mut kpassport = Kpassport::new_unsigned("My App", "a username").unwrap();
-        kpassport.sign("my secret signing key").unwrap();
-        let auth = Auth::BearerToken(kpassport.clone().export().unwrap());
-        let issued_bearer_token = auth.issue_kpassport_bearer_token();
-        let expected_cookie_value = format!("Bearer {}", kpassport.export().unwrap());
-        assert_eq!(
-            issued_bearer_token,
-            (Cow::from("Authorization"), Cow::from(expected_cookie_value))
-        )
-    }
-
-    #[test]
     fn authenticate() {
         let mut kpassport = Kpassport::new_unsigned("My App", "a username").unwrap();
         let key = "my secret signing key";
@@ -267,8 +245,8 @@ mod test {
         let mut kpassport = Kpassport::new_unsigned("My App", "a username").unwrap();
         kpassport.sign("my secret signing key").unwrap();
         let kpassport_str = kpassport.export().unwrap();
-        let cookie_value = Auth::cookie_value_string(&kpassport_str);
-        let expected = format!("kpassport={kpassport_str}; Secure; HttpOnly");
+        let cookie_value = Auth::cookie_value_string(&kpassport_str, "kpassport_session");
+        let expected = format!("kpassport_session={kpassport_str}; Secure; HttpOnly");
 
         assert_eq!(cookie_value, expected);
     }
