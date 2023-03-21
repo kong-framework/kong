@@ -50,10 +50,7 @@
 //! #### Expiration
 //! A `kpassport` is timestamped at the time it is issued
 
-use crate::{
-    error::KryptoError,
-    kpassport::{self, Kpassport},
-};
+use crate::{error::KryptoError, kpassport::Kpassport};
 use std::borrow::Cow;
 
 #[derive(Clone)]
