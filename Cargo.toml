@@ -19,6 +19,7 @@ rusqlite = { version = "0.28.0", features = ["bundled", "chrono"]} #  Ergonomic 
 
 # [HTTP]
 rouille = "3.6.1" # 
+route-recognizer = "0.3.1" # Recognizes URL patterns with support for dynamic and wildcard segments
 
 # [Cryptography]
 blake3 = "1.3.3" # A fast cryptographic hash function that is
