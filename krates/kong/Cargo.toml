@@ -16,3 +16,4 @@ krypto = { path = "../krypto/"}
 kerror = { path = "../kerror"}
 rouille.workspace = true
 serde.workspace = true
+route-recognizer.workspace = true
