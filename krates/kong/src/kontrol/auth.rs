@@ -36,7 +36,7 @@ impl AuthKontroller {
         // Find user account in database
         let account = kong
             .database
-            .get_account_by_username_private(&input.username);
+            .private_get_account_by_username(&input.username);
 
         match account {
             Ok(account) => {

@@ -6,23 +6,24 @@ exclude = ["./krates/klient"]
 version = "0.1.0"
 authors = ["Jackson G. Kaindume"]
 description = "secure web node"
-documentation = "https://codeberg.org/i-Kong/kong"
+documentation = "https://kwatafana.org/kong"
 
 [workspace.dependencies]
 
-# [Data]
+############################## [Data] ################################
 serde = { version = "1.0.144", features = ["derive"] } # A generic serialization/deserialization framework 
 toml = "0.5.9" # Encoder and decoder of TOML-formatted files and streams
 base64 = "0.21.0" # encodes and decodes base64 as bytes or utf8
 hex = "0.4.3" # Encoding and decoding data into/from hexadecimal representation. 
 rusqlite = { version = "0.28.0", features = ["bundled", "chrono"]} #  Ergonomic wrapper for SQLite
 
-# [HTTP]
-rouille = "3.6.1" # 
+############################# [HTTP] #################################
+rouille = "3.6.1" # High-level idiomatic web framework. 
+route-recognizer = "0.3.1" # Recognizes URL patterns with support for dynamic and wildcard segments
 
-# [Cryptography]
+######################### [Cryptography] #############################
 blake3 = "1.3.3" # A fast cryptographic hash function that is
 scrypt = "0.10.0" # The Scrypt key derivation function
 
-# [Misc]
+############################# [Misc] #################################
 chrono = { version = "0.4.23", features = ["serde"]} # Date and time library

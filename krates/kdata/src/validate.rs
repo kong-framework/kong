@@ -1,3 +1,10 @@
+//! # validate
+//!
+//! User input data validation
+//!
+//! ## References
+//! - <https://beesbuzz.biz/code/439-Falsehoods-programmers-believe-about-email>
+
 pub struct Validate;
 
 impl Validate {

@@ -1,3 +1,8 @@
+//! # 🕹️ inputs
+//!
+//! Data that is received as input from users, usually other data
+//! types are created from this input.
+
 use crate::validate::{Validate, ValidationError};
 use serde::Deserialize;
 

@@ -16,8 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Create database test-data directory
+    - name: Create kollection test-data directory
       run: mkdir ./krates/kollection/test-data
+    - name: Create kogs test-data directory
+      run: mkdir ./krates/kogs/test-data
     - name: Build
       run: cargo build --verbose
     - name: Run tests

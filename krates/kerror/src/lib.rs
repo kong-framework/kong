@@ -18,6 +18,8 @@ pub enum KError {
     PasswordVerifyHash,
     /// Configuration error
     Config,
+    /// URL parsing error
+    UrlParsing,
 }
 
 impl std::error::Error for KError {}
@@ -36,6 +38,7 @@ impl fmt::Display for KError {
             Self::PasswordHashing => write!(f, "Could not hash password"),
             Self::PasswordVerifyHash => write!(f, "Could not verify password hash"),
             Self::Config => write!(f, "Could not read config file"),
+            Self::UrlParsing => write!(f, "Could not parse error"),
         }
     }
 }
