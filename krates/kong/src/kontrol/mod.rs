@@ -1,3 +1,7 @@
+//! kontrol
+//!
+//! `kong` API controllers
+
 use crate::Kong;
 use kdata::inputs::UserInput;
 use rouille::{Request, Response};
