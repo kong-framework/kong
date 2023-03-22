@@ -99,3 +99,7 @@ means.
 
 For more information, please refer to the __UNLICENSE__ file in the
 repository.
+
+---
+
+<https://kong.kwatafana.org/>
