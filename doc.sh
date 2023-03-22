@@ -1,6 +1,4 @@
 #!/bin/bash
-pandoc -i doc/README.md -o doc/pub/index.html -s --css=style.css
-pandoc -i doc/api.md -o doc/pub/api.html -s --css=style.css --toc
-pandoc -i doc/kdata.md -o doc/pub/kdata.html -s --css=style.css --toc
-pandoc -i doc/kollection.md -o doc/pub/kollection.html -s --css=style.css --toc
-pandoc -i doc/krypto.md -o doc/pub/krypto.html -s --css=style.css --toc
+pandoc -i README.md -o website/index.html --metadata title="kong" -s --css=style.css
+pandoc -i API.md -o website/api.html -s --css=style.css --toc
+cargo doc --no-deps --target-dir website/rust/

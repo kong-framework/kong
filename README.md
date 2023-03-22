@@ -9,6 +9,8 @@
                          secure web node |___/ v0.1.0
 ```
 
+[documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
+
 ## Features
 
 - [ ] Confidentiality

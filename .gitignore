@@ -1,4 +1,5 @@
 *~
 target
 krates/kollection/test-data
-doc/pub/*.html
+krates/kogs/test-data
+website
