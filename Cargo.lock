@@ -597,14 +597,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kontainer"
-version = "0.1.0"
-dependencies = [
- "serde",
- "toml",
-]
-
-[[package]]
 name = "krypto"
 version = "0.1.0"
 dependencies = [
