@@ -1,10 +1,3 @@
----
-title: kong
-subtitle: Secure Web Node
-date: 2020-2023
-...
----
-
 ``` text
                               )                 
                            ( /(          (  (   
