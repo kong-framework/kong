@@ -13,9 +13,9 @@ pub struct Konfig {
     /// Port to access the server
     pub port: u16,
     /// Admin email address
-    pub admin_email: String,
+    pub admin_email: Option<String>,
     /// Admin Accounts database path
-    pub admin_accounts_database: String,
+    pub admin_accounts_database: Option<String>,
     /// Name of the authorization session cookie id
     pub auth_cookie_name: String,
     /// Path to static files
