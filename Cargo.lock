@@ -555,15 +555,6 @@ name = "kerror"
 version = "0.1.0"
 
 [[package]]
-name = "kogs"
-version = "0.1.0"
-dependencies = [
- "kerror",
- "rusqlite",
- "serde",
-]
-
-[[package]]
 name = "kollection"
 version = "0.1.0"
 dependencies = [
