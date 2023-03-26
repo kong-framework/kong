@@ -36,8 +36,14 @@ pub struct Kong {
 impl Kong {
     /// Create new kong instance
     pub fn new<'a>(kontrollers: Vec<Kontroller<'a>>) -> Self {
-        let config = Konfig::read().unwrap();
-        let database = Kollection::new(&config.admin_accounts_database);
+        let config = Konfig::read().expect("Could not read configuration file.");
+        let admin_db_path = if let Some(path) = &config.admin_accounts_database {
+            path.clone()
+        } else {
+            "databases/ADMINS.sqlite".to_string()
+        };
+
+        let database = Kollection::new(&admin_db_path);
         let mut router = Router::new();
 
         for kontroller in &kontrollers {
