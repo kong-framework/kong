@@ -17,11 +17,7 @@ pub trait Kontrol {
     fn kontrol(kong: &mut Kong, req: &Request) -> Response {
         match req.method() {
             "POST" => Self::post(kong, req),
-            _ => Response::html(
-                "404 error. Try <a href=\"/README.md\"`>README.md</a> or \
-                        <a href=\"/src/lib.rs\">src/lib.rs</a> for example.",
-            )
-            .with_status_code(404),
+            _ => Response::html("404 error").with_status_code(404),
         }
     }
 
