@@ -1,6 +1,6 @@
 //! kontrol
 //!
-//! `kong` API controllers
+//! `kong` API request controllers
 
 use crate::Kong;
 use kdata::inputs::UserInput;
@@ -25,6 +25,7 @@ pub trait Kontrol {
         }
     }
 
+    /// Validate input from user
     fn validate_user_input(input: impl UserInput) -> bool;
 
     /// Handle request from a HTTP POST method
@@ -47,10 +48,13 @@ pub trait Kontrol {
 
 /// Request Kontroller
 pub struct Kontroller<'a> {
+    /// API request address
     pub address: &'a str,
+    /// API request handler
     pub handle: fn(kong: &mut Kong, req: &Request) -> Response,
 }
 
+/// API request handling error
 #[derive(Serialize)]
 pub struct KontrolError {
     msg: String,

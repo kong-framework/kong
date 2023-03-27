@@ -1,3 +1,5 @@
+//! Accounts API endpoint controller
+
 use super::{Kontrol, KontrolError};
 use crate::Kong;
 use kdata::{
@@ -8,9 +10,11 @@ use rouille::{try_or_400, Request, Response};
 
 pub const ADDRESS: &str = "/accounts";
 
+/// Accounts API endpoint controller
 pub struct AccountsKontroller;
 
 impl Kontrol for AccountsKontroller {
+    /// POST request handler
     fn post(kong: &mut Kong, request: &Request) -> Response {
         let input: AccountCreationInput = try_or_400!(rouille::input::json_input(request));
 
@@ -24,6 +28,7 @@ impl Kontrol for AccountsKontroller {
         }
     }
 
+    /// Validate user input
     fn validate_user_input(input: impl kdata::inputs::UserInput) -> bool {
         if input.is_valid().is_ok() {
             true

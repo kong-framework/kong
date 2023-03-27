@@ -1,3 +1,4 @@
+//! Authorization and Authentication API endpoint controller
 use super::{Kontrol, KontrolError};
 use crate::Kong;
 
@@ -6,6 +7,7 @@ use rouille::{try_or_400, Request, Response};
 
 pub const ADDRESS: &str = "/auth";
 
+/// Authorization and Authentication API endpoint controller
 pub struct AuthKontroller;
 
 impl Kontrol for AuthKontroller {
