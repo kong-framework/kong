@@ -14,7 +14,7 @@ use route_recognizer::{Params, Router};
 /// Trait for an HTTP endpoint /  request handler
 pub trait Kontrol {
     /// Check request HTTP methods and handle accordingly
-    fn handle_request(kong: &mut Kong, req: &Request) -> Response {
+    fn kontrol(kong: &mut Kong, req: &Request) -> Response {
         match req.method() {
             "POST" => Self::post(kong, req),
             _ => Response::html(
