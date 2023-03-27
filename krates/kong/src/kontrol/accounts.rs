@@ -8,8 +8,6 @@ use kdata::{
 };
 use rouille::{try_or_400, Request, Response};
 
-pub const ADDRESS: &str = "/accounts";
-
 /// Accounts API endpoint controller
 pub struct AccountsKontroller;
 

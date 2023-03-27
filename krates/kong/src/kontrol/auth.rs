@@ -5,8 +5,6 @@ use crate::Kong;
 use kdata::{accounts::Account, inputs::AccountAuthInput};
 use rouille::{try_or_400, Request, Response};
 
-pub const ADDRESS: &str = "/auth";
-
 /// Authorization and Authentication API endpoint controller
 pub struct AuthKontroller;
 
