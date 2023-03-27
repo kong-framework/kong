@@ -8,6 +8,8 @@ use rouille::{Request, Response};
 use serde::Serialize;
 pub mod accounts;
 pub mod auth;
+use kerror::KError;
+use route_recognizer::{Params, Router};
 
 /// Trait for an HTTP endpoint /  request handler
 pub trait Kontrol {
@@ -27,6 +29,20 @@ pub trait Kontrol {
 
     /// Handle request from a HTTP POST method
     fn post(kong: &mut Kong, req: &Request) -> Response;
+
+    /// url parameters extractor
+    fn url_params(
+        router: &Router<for<'a> fn(&mut Kong, &'a Request) -> Response>,
+        url: &str,
+    ) -> Result<Params, KError> {
+        let router = router.clone();
+        let m = router.recognize(url);
+
+        match m {
+            Ok(mtch) => Ok(mtch.params().clone()),
+            Err(_) => Err(KError::UrlParsing),
+        }
+    }
 }
 
 /// Request Kontroller
