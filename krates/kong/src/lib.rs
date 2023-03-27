@@ -30,7 +30,7 @@ pub struct Kong {
     /// Kong configuration
     pub config: Konfig,
     /// Kong router
-    pub router: Router<for<'a, 'b> fn(&mut Kong, &'b Request) -> Response>,
+    pub router: Router<for<'a> fn(&mut Kong, &'a Request) -> Response>,
 }
 
 impl Kong {

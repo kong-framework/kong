@@ -31,7 +31,7 @@ impl Kroute {
 
     /// Kong url parameters extractor
     pub fn get_url_params(
-        router: &Router<for<'a, 'b> fn(&mut Kong, &'b Request) -> Response>,
+        router: &Router<for<'a> fn(&mut Kong, &'a Request) -> Response>,
         url: &str,
     ) -> Result<Params, KError> {
         let router = router.clone();
