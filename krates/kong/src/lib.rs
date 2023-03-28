@@ -18,7 +18,8 @@ pub use kollection::Kollection;
 pub use konfig::Konfig;
 use kontrol::{Kontrol, Kontroller};
 pub mod kontrol;
-pub mod kroute;
+pub use kroute::Kroute;
+mod kroute;
 pub mod outsource;
 use rouille::{Request, Response};
 use route_recognizer::Router;
@@ -30,7 +31,7 @@ pub struct Kong {
     /// Kong configuration
     pub config: Konfig,
     /// Kong router
-    pub router: Router<for<'a, 'b> fn(&mut Kong, &'b Request) -> Response>,
+    pub router: Router<for<'a> fn(&mut Kong, &'a Request) -> Response>,
 }
 
 impl Kong {
