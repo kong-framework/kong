@@ -47,14 +47,6 @@ impl<'a> Kontroller<'a> {
     }
 }
 
-/// Request Kontroller
-pub struct Kontroller<'a> {
-    /// API request address
-    pub address: &'a str,
-    /// API request handler
-    pub handle: fn(kong: &mut Kong, req: &Request) -> Response,
-}
-
 /// API request handling error
 #[derive(Serialize)]
 pub struct KontrolError {
