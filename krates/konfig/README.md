@@ -1,5 +1,5 @@
 ---
 title: konfig
-subtitle: `kong` server configuration
+subtitle: kong server configuration
 ...
 ---

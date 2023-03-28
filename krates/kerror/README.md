@@ -1,5 +1,5 @@
 ---
 title: kerror
-subtitle: Common error types used in `kong`
+subtitle: Common error types used in kong
 ...
 ---

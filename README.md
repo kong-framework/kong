@@ -36,7 +36,7 @@ use kong::{
 use server::{Request, Response};
 use std::sync::Mutex;
 
-fn main() -> Result<(), KError> {
+fn main(){
     let kontrollers = vec![
         Kontroller {
             address: "/",
