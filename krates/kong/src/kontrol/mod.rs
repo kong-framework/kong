@@ -14,22 +14,27 @@ use route_recognizer::{Params, Router};
 /// Trait for an HTTP endpoint /  request handler
 pub trait Kontrol {
     /// Check request HTTP methods and handle accordingly
-    fn kontrol(kong: &mut Kong, req: &Request) -> Response {
-        match req.method() {
-            "POST" => Self::post(kong, req),
-            _ => Response::html("404 error").with_status_code(404),
-        }
-    }
+    fn kontrol(kong: &mut Kong, req: &Request) -> Response;
 
     /// Validate input from user
     fn validate_user_input(input: impl UserInput) -> bool;
 
     /// Handle request from a HTTP POST method
     fn post(kong: &mut Kong, req: &Request) -> Response;
+}
 
+/// Request Kontroller
+pub struct Kontroller<'a> {
+    /// API request address
+    pub address: &'a str,
+    /// API request handler
+    pub handle: fn(kong: &mut Kong, req: &Request) -> Response,
+}
+
+impl<'a> Kontroller<'a> {
     /// url parameters extractor
-    fn url_params(
-        router: &Router<for<'a> fn(&mut Kong, &'a Request) -> Response>,
+    pub fn url_params(
+        router: &Router<fn(&mut Kong, &'a Request) -> Response>,
         url: &str,
     ) -> Result<Params, KError> {
         let router = router.clone();

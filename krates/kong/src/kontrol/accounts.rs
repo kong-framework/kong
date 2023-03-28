@@ -12,6 +12,12 @@ use rouille::{try_or_400, Request, Response};
 pub struct AccountsKontroller;
 
 impl Kontrol for AccountsKontroller {
+    fn kontrol(kong: &mut Kong, req: &Request) -> Response {
+        match req.method() {
+            "POST" => Self::post(kong, req),
+            _ => Response::html("404 error").with_status_code(404),
+        }
+    }
     /// POST request handler
     fn post(kong: &mut Kong, request: &Request) -> Response {
         let input: AccountCreationInput = try_or_400!(rouille::input::json_input(request));
