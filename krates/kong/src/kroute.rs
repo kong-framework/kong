@@ -1,7 +1,8 @@
 //! # kroute
 //! `kong` request routing
 
-use crate::Kong;
+use crate::{kontrol::Method, Kong};
+use std::str::FromStr;
 
 /// Kong request routing
 pub struct Kroute;
@@ -18,10 +19,26 @@ impl Kroute {
         }
 
         let router = kong.router.clone();
-        let m = router.recognize(&request.url());
+        // check request url
+        let recognized_route = router.recognize(&request.url());
 
-        match m {
-            Ok(mut mtch) => (mtch.handler_mut())(kong, request),
+        match recognized_route {
+            Ok(mut route) => {
+                // Check HTTP method
+                if let Ok(request_method) = Method::from_str(&request.url()) {
+                    let supported_methods = &route.handler_mut().1;
+                    let handler = (route.handler_mut()).0;
+
+                    // check if method is supported by handler
+                    if supported_methods.contains(&request_method) {
+                        handler(kong, request)
+                    } else {
+                        rouille::Response::html("404 error").with_status_code(404)
+                    }
+                } else {
+                    rouille::Response::html("Invalid HTTP Method").with_status_code(400)
+                }
+            }
             Err(_) => rouille::Response::html("404 error").with_status_code(404),
         }
     }

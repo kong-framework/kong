@@ -16,7 +16,7 @@ pub use kdata;
 pub use kerror::KError;
 pub use kollection::Kollection;
 pub use konfig::Konfig;
-use kontrol::{Kontrol, Kontroller};
+use kontrol::{Kontroller, Method};
 pub mod kontrol;
 pub use kroute::Kroute;
 mod kroute;
@@ -31,7 +31,7 @@ pub struct Kong {
     /// Kong configuration
     pub config: Konfig,
     /// Kong router
-    pub router: Router<for<'a> fn(&mut Kong, &'a Request) -> Response>,
+    pub router: Router<(for<'a> fn(&mut Kong, &'a Request) -> Response, Vec<Method>)>,
 }
 
 impl Kong {
@@ -48,7 +48,10 @@ impl Kong {
         let mut router = Router::new();
 
         for kontroller in &kontrollers {
-            router.add(kontroller.address, kontroller.handle);
+            router.add(
+                kontroller.address,
+                (kontroller.kontrol, kontroller.methods.clone()),
+            );
         }
 
         Kong {
