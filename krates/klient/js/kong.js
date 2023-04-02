@@ -9,7 +9,7 @@ const KongError = {
     InternalServer: Error('Internal server error'),
     InvalidPassword: Error('Invalid Password. Length cannot be less than 10 characters long'),
     InvalidUsername: Error('Invalid Username. Length cannot be greater than 15 characters'),
-    InvalidEmail: Error('Invalid email')
+    InvalidEmail: Error('Invalid email'),
     AccountNotFound: Error('Account does not exist')
 }
 
