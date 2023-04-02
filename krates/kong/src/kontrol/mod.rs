@@ -5,8 +5,8 @@
 use crate::Kong;
 use rouille::{Request, Response};
 use serde::Serialize;
-//pub mod accounts;
-//pub mod auth;
+pub mod accounts;
+pub mod auth;
 use kerror::KError;
 use route_recognizer::{Params, Router};
 use std::str::FromStr;

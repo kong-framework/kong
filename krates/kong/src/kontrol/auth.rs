@@ -1,5 +1,5 @@
 //! Authorization and Authentication API endpoint controller
-use super::{Kontrol, KontrolError};
+use super::KontrolError;
 use crate::Kong;
 
 use kdata::{accounts::Account, inputs::AccountAuthInput};
@@ -8,8 +8,9 @@ use rouille::{try_or_400, Request, Response};
 /// Authorization and Authentication API endpoint controller
 pub struct AuthKontroller;
 
-impl Kontrol for AuthKontroller {
-    fn kontrol(kong: &mut Kong, req: &Request) -> Response {
+impl AuthKontroller {
+    /// Kontrol request by matching the methods to their handlers
+    pub fn kontrol(kong: &mut Kong, req: &Request) -> Response {
         match req.method() {
             "POST" => Self::post(kong, req),
             _ => Response::html("404 error").with_status_code(404),
@@ -35,9 +36,7 @@ impl Kontrol for AuthKontroller {
             false
         }
     }
-}
 
-impl AuthKontroller {
     fn authenticate(input: AccountAuthInput, kong: &Kong) -> Response {
         // Find user account in database
         let account = kong
