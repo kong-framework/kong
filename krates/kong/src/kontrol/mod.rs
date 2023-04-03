@@ -11,11 +11,20 @@ use kerror::KError;
 use route_recognizer::{Params, Router};
 use std::str::FromStr;
 
+/// Common functionality for endpoint kontrollers
+pub trait Kontrol {
+    /// Get HTTP methods that are suported by this kontroller
+    fn methods() -> Vec<Method>;
+
+    /// Validate user input
+    fn validate_user_input(input: impl kdata::inputs::UserInput) -> bool;
+}
+
 /// Request endpoint
 pub struct Kontroller<'a> {
     /// API request address
     pub address: &'a str,
-    /// API request handler
+    /// API request kontrol handler
     pub kontrol: fn(kong: &mut Kong, req: &Request) -> Response,
     /// Supported HTTP methods
     pub methods: Vec<Method>,
@@ -104,6 +113,6 @@ mod test {
             methods: vec![Method::Put],
         };
 
-        let kong = Kong::new(vec![kontroller, kontroller1, kontroller2]);
+        // let kong = Kong::new(vec![kontroller, kontroller1, kontroller2]);
     }
 }

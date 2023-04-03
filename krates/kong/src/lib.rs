@@ -16,7 +16,7 @@ pub use kdata;
 pub use kerror::KError;
 pub use kollection::Kollection;
 pub use konfig::Konfig;
-use kontrol::{Kontroller, Method};
+pub use kontrol::{Kontrol, Kontroller, Method};
 pub mod kontrol;
 pub use kroute::Kroute;
 mod kroute;

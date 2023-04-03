@@ -25,7 +25,7 @@ impl Kroute {
         match recognized_route {
             Ok(mut route) => {
                 // Check HTTP method
-                if let Ok(request_method) = Method::from_str(&request.url()) {
+                if let Ok(request_method) = Method::from_str(&request.method()) {
                     let supported_methods = &route.handler_mut().1;
                     let handler = (route.handler_mut()).0;
 
