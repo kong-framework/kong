@@ -1,7 +1,7 @@
 //! Accounts API endpoint controller
 
 use super::{Kontrol, KontrolError};
-use crate::{Kong, Method};
+use crate::Kong;
 use kdata::{
     accounts::{Account, PublicAccount},
     inputs::AccountCreationInput,
@@ -12,11 +12,6 @@ use rouille::{try_or_400, Request, Response};
 pub struct AccountsKontroller;
 
 impl Kontrol for AccountsKontroller {
-    /// Get HTTP methods that are suported by this kontroller
-    fn methods() -> Vec<Method> {
-        vec![Method::Post]
-    }
-
     /// Validate user input
     fn validate_user_input(input: impl kdata::inputs::UserInput) -> bool {
         if input.is_valid().is_ok() {

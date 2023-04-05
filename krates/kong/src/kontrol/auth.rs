@@ -1,6 +1,6 @@
 //! Authorization and Authentication API endpoint controller
 use super::{Kontrol, KontrolError};
-use crate::{Kong, Method};
+use crate::Kong;
 
 use kdata::{accounts::Account, inputs::AccountAuthInput};
 use rouille::{try_or_400, Request, Response};
@@ -9,11 +9,6 @@ use rouille::{try_or_400, Request, Response};
 pub struct AuthKontroller;
 
 impl Kontrol for AuthKontroller {
-    /// Get HTTP methods that are suported by this kontroller
-    fn methods() -> Vec<Method> {
-        vec![Method::Post]
-    }
-
     /// Validate user input
     fn validate_user_input(input: impl kdata::inputs::UserInput) -> bool {
         if input.is_valid().is_ok() {

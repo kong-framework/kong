@@ -13,9 +13,6 @@ use std::str::FromStr;
 
 /// Common functionality for endpoint kontrollers
 pub trait Kontrol {
-    /// Get HTTP methods that are suported by this kontroller
-    fn methods() -> Vec<Method>;
-
     /// Validate user input
     fn validate_user_input(input: impl kdata::inputs::UserInput) -> bool;
 }
