@@ -1,0 +1,6 @@
+port = 7878
+admin_email = "admin@example.com"
+admin_accounts_database = "test-data/admins.sqlite"
+auth_cookie_name = "my_session"
+host = "my-host"
+secret_key = "My super secret key" # Do not use in production

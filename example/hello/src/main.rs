@@ -1,32 +1,3 @@
-``` text
-                              )                 
-                           ( /(          (  (   
-                            )\())(   (    )\))(  
-                           ((_)\ )\  )\ )((_))\  
-                           | |(_|(_)_(_/( (()(_) 
-                           | / / _ \ ' \)) _` |  
-                           |_\_\___/_||_|\__, |  
-                         secure web node |___/ v0.1.0
-```
-
-[documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
-
-## Features
-
-- [ ] Confidentiality
-- [ ] Integrity
-- [ ] Availability
-- [ ] Database Management
-- [ ] Session Management
-- [ ] HTTP+JSON API
-- [ ] Optional Federation
-- [ ] Built in HTTP server
-- [ ] Account Management
-
-
-## Usage
-
-``` rust
 use kong::prelude::*;
 use std::sync::Mutex;
 
@@ -106,20 +77,3 @@ fn main() -> Result<(), KError> {
         Kroute::kroute(&mut kong, request)
     });
 }
-```
-
-## Unlicense
-
-Written and placed in the public domain by Jackson G. Kaindume.
-
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
-
-For more information, please refer to the __UNLICENSE__ file in the
-repository.
-
----
-
-<https://kong.kwatafana.org/>

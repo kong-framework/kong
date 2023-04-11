@@ -12,31 +12,29 @@
 #![doc(html_logo_url = "https://kwatafana.org/logo.jpeg")]
 #![warn(missing_docs, unreachable_pub, future_incompatible, rust_2018_idioms)]
 
-pub use kdata;
-pub use kerror::KError;
-pub use kollection::Kollection;
-pub use konfig::Konfig;
-use kontrol::{Kontrol, Kontroller};
-pub mod kontrol;
-pub use kroute::Kroute;
+mod kontrol;
 mod kroute;
-pub mod outsource;
-use rouille::{Request, Response};
+pub mod prelude;
+
+use kdata::inputs::UserInput;
+use kollection::Kollection;
+use konfig::Konfig;
+use kontrol::{Kontrol, Kontroller, Method};
 use route_recognizer::Router;
 
 /// Kong object
-pub struct Kong {
+pub struct Kong<I: UserInput> {
     /// Kong database
     pub database: Kollection,
     /// Kong configuration
     pub config: Konfig,
     /// Kong router
-    pub router: Router<for<'a> fn(&mut Kong, &'a Request) -> Response>,
+    pub router: Router<RouterObject<I>>,
 }
 
-impl Kong {
+impl<I: UserInput> Kong<I> {
     /// Create new kong instance
-    pub fn new<'a>(kontrollers: Vec<Kontroller<'a>>) -> Self {
+    pub fn new<'a>(kontrollers: Vec<Kontroller<'a, I>>) -> Self {
         let config = Konfig::read().expect("Could not read configuration file.");
         let admin_db_path = if let Some(path) = &config.admin_accounts_database {
             path.clone()
@@ -48,7 +46,12 @@ impl Kong {
         let mut router = Router::new();
 
         for kontroller in &kontrollers {
-            router.add(kontroller.address, kontroller.handle);
+            let router_object = RouterObject {
+                kontrol: kontroller.kontrol.clone(),
+                method: kontroller.method,
+            };
+
+            router.add(kontroller.address, router_object);
         }
 
         Kong {
@@ -60,5 +63,19 @@ impl Kong {
     /// Start up runtime
     pub fn start(&mut self) -> Result<(), kerror::KError> {
         self.database.connect()
+    }
+}
+
+pub struct RouterObject<I: UserInput> {
+    kontrol: Kontrol<I>,
+    // TODO: the array length should be the number of http methods
+    method: Method,
+}
+
+impl<I: UserInput> Copy for RouterObject<I> {}
+
+impl<I: UserInput> Clone for RouterObject<I> {
+    fn clone(&self) -> Self {
+        *self
     }
 }
