@@ -15,11 +15,11 @@ use std::str::FromStr;
 /// Functionality for endpoint kontrollers
 pub struct Kontrol<I: UserInput> {
     /// Read user input
-    pub get_input: fn(request: &Request) -> I,
+    pub get_input: Option<fn(request: &Request) -> I>,
     /// validate input
-    pub validate: fn(input: I) -> Result<I, ()>,
+    pub validate: Option<fn(input: I) -> Result<I, ()>>,
     /// Handle request
-    pub kontrol: fn(kong: &mut Kong<I>, input: I) -> Response,
+    pub kontrol: fn(kong: &mut Kong<I>, input: Option<I>) -> Response,
 }
 
 impl<I: UserInput> Copy for Kontrol<I> {}
@@ -93,13 +93,18 @@ impl FromStr for Method {
 /// Handlers
 pub trait KontrolHandle<I: UserInput> {
     /// kontrol everything
-    fn kontrol(kong: &mut Kong<I>, input: I) -> Response {
-        let input = Self::validate(input);
+    fn kontrol(kong: &mut Kong<I>, input: Option<I>) -> Response {
+        if let Some(input) = input {
+            let input = Self::validate(input);
 
-        if let Ok(input) = input {
-            Self::handle(kong, input)
+            if let Ok(input) = input {
+                Self::handle(kong, Some(input))
+            } else {
+                // TODO: do not panic
+                panic!()
+            }
         } else {
-            panic!()
+            Self::handle(kong, None)
         }
     }
 
@@ -117,7 +122,7 @@ pub trait KontrolHandle<I: UserInput> {
     }
 
     /// Handle request
-    fn handle(kong: &mut Kong<I>, input: I) -> Response;
+    fn handle(kong: &mut Kong<I>, input: Option<I>) -> Response;
 }
 
 /// API request handling error

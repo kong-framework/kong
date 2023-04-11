@@ -36,11 +36,13 @@ impl Kroute {
                     // check if method is supported by handler
                     if supported_method == &request_method {
                         let kontrol = (route.handler_mut()).kontrol.kontrol;
-                        let get_input = (route.handler_mut()).kontrol.get_input;
-                        let input = get_input(request);
 
-                        // kontrol request
-                        kontrol(kong, input)
+                        if let Some(get_input) = (route.handler_mut()).kontrol.get_input {
+                            let input = get_input(request);
+                            kontrol(kong, Some(input))
+                        } else {
+                            kontrol(kong, None)
+                        }
                     } else {
                         rouille::Response::html("404 error").with_status_code(404)
                     }

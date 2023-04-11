@@ -6,7 +6,7 @@ use kdata::{
     accounts::{Account, PublicAccount},
     inputs::{AccountCreationInput, UserInput},
 };
-use rouille::{try_or_400, Request, Response};
+use rouille::{Request, Response};
 
 /// Accounts API endpoint controller
 pub struct CreateAccountKontroller;
@@ -19,25 +19,35 @@ impl KontrolHandle<AccountCreationInput> for CreateAccountKontroller {
     }
 
     /// Create a new user
-    fn handle(kong: &mut Kong<AccountCreationInput>, input: AccountCreationInput) -> Response {
-        let account: Account = input.into();
+    fn handle(
+        kong: &mut Kong<AccountCreationInput>,
+        input: Option<AccountCreationInput>,
+    ) -> Response {
+        if let Some(input) = input {
+            let account: Account = input.into();
 
-        match kong.database.create_account(&account) {
-            Ok(_) => {
-                let public_account: PublicAccount = account.into();
-                Response::json(&public_account).with_status_code(201)
+            match kong.database.create_account(&account) {
+                Ok(_) => {
+                    let public_account: PublicAccount = account.into();
+                    Response::json(&public_account).with_status_code(201)
+                }
+
+                Err(err) => match err {
+                    kerror::KError::DbField => Response::json(&KontrolError {
+                        msg: "Invalid input".to_owned(),
+                    })
+                    .with_status_code(401),
+                    _ => Response::json(&KontrolError {
+                        msg: "Could not create account".to_owned(),
+                    })
+                    .with_status_code(500),
+                },
             }
-
-            Err(err) => match err {
-                kerror::KError::DbField => Response::json(&KontrolError {
-                    msg: "Invalid input".to_owned(),
-                })
-                .with_status_code(401),
-                _ => Response::json(&KontrolError {
-                    msg: "Could not create account".to_owned(),
-                })
-                .with_status_code(500),
-            },
+        } else {
+            Response::json(&KontrolError {
+                msg: "Invalid input".to_owned(),
+            })
+            .with_status_code(401)
         }
     }
 }
