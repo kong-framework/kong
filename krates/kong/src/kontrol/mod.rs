@@ -142,8 +142,8 @@ mod test {
     #[test]
     fn usage() {
         let kontrol: Kontrol<AccountCreationInput> = Kontrol {
-            get_input: CreateAccountKontroller::get_input,
-            validate: CreateAccountKontroller::validate,
+            get_input: Some(CreateAccountKontroller::get_input),
+            validate: Some(CreateAccountKontroller::validate),
             kontrol: CreateAccountKontroller::kontrol,
         };
 
