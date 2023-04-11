@@ -1,5 +1,5 @@
 [workspace]
-members = ["./krates/*"]
+members = ["./krates/*", "example/*"]
 exclude = ["./krates/klient"]
 
 [workspace.package]
