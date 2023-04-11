@@ -8,7 +8,17 @@ use serde::Deserialize;
 
 /// User input
 pub trait UserInput {
+    /// Validate user input
     fn is_valid(&self) -> Result<(), ValidationError>;
+}
+
+/// Used when no user input is expected
+pub struct NoInput;
+
+impl UserInput for NoInput {
+    fn is_valid(&self) -> Result<(), ValidationError> {
+        Ok(())
+    }
 }
 
 /// Data used as input to create a new account.
