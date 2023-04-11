@@ -6,7 +6,7 @@ use crate::Kong;
 use rouille::{Request, Response};
 use serde::Serialize;
 pub mod accounts;
-//pub mod auth;
+pub mod auth;
 use kdata::inputs::UserInput;
 use kerror::KError;
 use route_recognizer::{Params, Router};
@@ -19,7 +19,7 @@ pub struct Kontrol<I: UserInput> {
     /// validate input
     pub validate: fn(input: I) -> Result<I, ()>,
     /// Handle request
-    pub kontrol: fn(kong: &mut Kong<I>, request: &Request) -> Response,
+    pub kontrol: fn(kong: &mut Kong<I>, input: I) -> Response,
 }
 
 impl<I: UserInput> Copy for Kontrol<I> {}
@@ -93,11 +93,11 @@ impl FromStr for Method {
 /// Handlers
 pub trait KontrolHandle<I: UserInput> {
     /// kontrol everything
-    fn kontrol(kong: &mut Kong<I>, request: &Request) -> Response {
-        let input = Self::get_input(request);
+    fn kontrol(kong: &mut Kong<I>, input: I) -> Response {
+        let input = Self::validate(input);
 
-        if Self::validate(input).is_ok() {
-            Self::handle(kong, request)
+        if let Ok(input) = input {
+            Self::handle(kong, input)
         } else {
             panic!()
         }
@@ -115,8 +115,9 @@ pub trait KontrolHandle<I: UserInput> {
             Err(())
         }
     }
+
     /// Handle request
-    fn handle(kong: &mut Kong<I>, request: &Request) -> Response;
+    fn handle(kong: &mut Kong<I>, input: I) -> Response;
 }
 
 /// API request handling error

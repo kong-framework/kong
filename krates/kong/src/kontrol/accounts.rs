@@ -19,9 +19,7 @@ impl KontrolHandle<AccountCreationInput> for CreateAccountKontroller {
     }
 
     /// Create a new user
-    fn handle(kong: &mut Kong<AccountCreationInput>, request: &Request) -> Response {
-        let input: AccountCreationInput = try_or_400!(rouille::input::json_input(request));
-
+    fn handle(kong: &mut Kong<AccountCreationInput>, input: AccountCreationInput) -> Response {
         let account: Account = input.into();
 
         match kong.database.create_account(&account) {
