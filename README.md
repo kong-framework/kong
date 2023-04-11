@@ -45,7 +45,7 @@ fn validate(_input: kdata::inputs::NoInput) -> Result<kdata::inputs::NoInput, ()
 /// Handle request
 fn say_hello(
     _kong: &mut Kong<kdata::inputs::NoInput>,
-    _request: &server::Request,
+    _input: kdata::inputs::NoInput,
 ) -> server::Response {
     server::Response::text("Hello; world!")
 }
