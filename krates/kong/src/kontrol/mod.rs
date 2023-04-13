@@ -7,7 +7,7 @@ use krypto::kpassport::Kpassport;
 use rouille::{Request, Response};
 pub mod accounts;
 use kdata::{
-    inputs::UserInput,
+    inputs::{NoInput, UserInput},
     resource::{Resource, ResourceError},
 };
 use kerror::KError;
@@ -17,7 +17,7 @@ use std::str::FromStr;
 /// Functionality for endpoint kontrollers
 pub struct Kontrol<I: UserInput, R: Resource + serde::Serialize> {
     /// Read user input
-    pub get_input: Option<fn(request: &Request) -> I>,
+    pub get_input: Option<fn(request: &Request) -> Option<I>>,
     /// validate input, this can ofcourse be part of `Kontrol.get_input`
     /// but this way can ensure that validation is not hidden or forgotten
     pub validate: Option<fn(input: I) -> Result<I, ()>>,
@@ -120,7 +120,9 @@ pub trait KontrolHandle<I: UserInput, R: Resource + serde::Serialize> {
     }
 
     /// Get input
-    fn get_input(request: &Request) -> I;
+    fn get_input(_request: &Request) -> Option<I> {
+        None
+    }
 
     /// Validate user input
     fn validate(input: I) -> Result<I, ()> {
@@ -138,6 +140,9 @@ pub trait KontrolHandle<I: UserInput, R: Resource + serde::Serialize> {
         input: Option<I>,
         kpassport: Option<Kpassport>,
     ) -> Result<R, ResourceError>;
+
+    /// Request endpoint
+    fn kontroller<'a>() -> Kontroller<'a, I, R>;
 }
 
 #[cfg(test)]

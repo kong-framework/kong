@@ -1,6 +1,6 @@
 //! Accounts API endpoint controller
 
-use super::KontrolHandle;
+use super::{Kontrol, KontrolHandle, Kontroller, Method};
 use crate::Kong;
 use kdata::{
     accounts::{Account, PublicAccount},
@@ -14,17 +14,17 @@ use rouille::Request;
 pub struct CreateAccountKontroller;
 
 impl KontrolHandle<AccountCreationInput, PublicAccount> for CreateAccountKontroller {
-    fn get_input(request: &Request) -> AccountCreationInput {
+    fn get_input(request: &Request) -> Option<AccountCreationInput> {
         // TODO: don't use unwrap
         let input: AccountCreationInput = rouille::input::json_input(request).unwrap();
-        input
+        Some(input)
     }
 
     /// Create a new user
     fn handle(
         kong: &mut Kong<AccountCreationInput, PublicAccount>,
         input: Option<AccountCreationInput>,
-        kpassport: Option<Kpassport>,
+        _kpassport: Option<Kpassport>,
     ) -> Result<PublicAccount, ResourceError> {
         if let Some(input) = input {
             let account: Account = input.into();
@@ -42,6 +42,21 @@ impl KontrolHandle<AccountCreationInput, PublicAccount> for CreateAccountKontrol
             }
         } else {
             Err(ResourceError::BadRequest)
+        }
+    }
+
+    /// Create an new account, can be used by users of kong to get a CreateAccountKontroller Kontroller
+    fn kontroller<'a>() -> Kontroller<'a, AccountCreationInput, PublicAccount> {
+        let create_account: Kontrol<AccountCreationInput, PublicAccount> = Kontrol {
+            get_input: Some(CreateAccountKontroller::get_input),
+            validate: Some(CreateAccountKontroller::validate),
+            kontrol: CreateAccountKontroller::kontrol,
+        };
+
+        Kontroller {
+            address: "/accounts",
+            method: Method::Post,
+            kontrol: create_account,
         }
     }
 }

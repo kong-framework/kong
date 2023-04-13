@@ -69,7 +69,7 @@ impl Kroute {
         if let Some(get_input) = (route.handler_mut()).kontrol.get_input {
             let input = get_input(request);
             // handle request with user input
-            let resource = kontrol(kong, Some(input), kpassport);
+            let resource = kontrol(kong, input, kpassport);
             match resource {
                 Ok(resource) => rouille::Response::json(&resource).with_status_code(201),
                 Err(err) => ErrorResponse::map_resource_error(err),
