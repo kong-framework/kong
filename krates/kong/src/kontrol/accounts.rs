@@ -1,17 +1,19 @@
 //! Accounts API endpoint controller
 
-use super::{Kontrol, KontrolError, KontrolHandle};
+use super::KontrolHandle;
 use crate::Kong;
 use kdata::{
     accounts::{Account, PublicAccount},
-    inputs::{AccountCreationInput, UserInput},
+    inputs::AccountCreationInput,
+    resource::ResourceError,
 };
-use rouille::{Request, Response};
+use krypto::kpassport::Kpassport;
+use rouille::Request;
 
 /// Accounts API endpoint controller
 pub struct CreateAccountKontroller;
 
-impl KontrolHandle<AccountCreationInput> for CreateAccountKontroller {
+impl KontrolHandle<AccountCreationInput, PublicAccount> for CreateAccountKontroller {
     fn get_input(request: &Request) -> AccountCreationInput {
         // TODO: don't use unwrap
         let input: AccountCreationInput = rouille::input::json_input(request).unwrap();
@@ -20,34 +22,26 @@ impl KontrolHandle<AccountCreationInput> for CreateAccountKontroller {
 
     /// Create a new user
     fn handle(
-        kong: &mut Kong<AccountCreationInput>,
+        kong: &mut Kong<AccountCreationInput, PublicAccount>,
         input: Option<AccountCreationInput>,
-    ) -> Response {
+        kpassport: Option<Kpassport>,
+    ) -> Result<PublicAccount, ResourceError> {
         if let Some(input) = input {
             let account: Account = input.into();
 
             match kong.database.create_account(&account) {
                 Ok(_) => {
                     let public_account: PublicAccount = account.into();
-                    Response::json(&public_account).with_status_code(201)
+                    Ok(public_account)
                 }
 
                 Err(err) => match err {
-                    kerror::KError::DbField => Response::json(&KontrolError {
-                        msg: "Invalid input".to_owned(),
-                    })
-                    .with_status_code(401),
-                    _ => Response::json(&KontrolError {
-                        msg: "Could not create account".to_owned(),
-                    })
-                    .with_status_code(500),
+                    kerror::KError::DbField => Err(ResourceError::BadRequest),
+                    _ => Err(ResourceError::Internal),
                 },
             }
         } else {
-            Response::json(&KontrolError {
-                msg: "Invalid input".to_owned(),
-            })
-            .with_status_code(401)
+            Err(ResourceError::BadRequest)
         }
     }
 }

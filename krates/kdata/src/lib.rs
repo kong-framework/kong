@@ -16,4 +16,5 @@
 
 pub mod accounts;
 pub mod inputs;
+pub mod resource;
 pub mod validate;

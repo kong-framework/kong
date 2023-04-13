@@ -156,9 +156,9 @@ impl Auth {
 /// HTTP authentication methods
 pub struct AuthHeaders<'a> {
     /// Cookie based authentication
-    cookie: Option<&'a str>,
+    pub cookie: Option<&'a str>,
     /// Bearer token based authentication
-    bearer_token: Option<&'a str>,
+    pub bearer_token: Option<&'a str>,
 }
 
 #[cfg(test)]

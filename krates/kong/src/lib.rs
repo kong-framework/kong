@@ -16,25 +16,25 @@ mod kontrol;
 mod kroute;
 pub mod prelude;
 
-use kdata::inputs::UserInput;
+use kdata::{inputs::UserInput, resource::Resource};
 use kollection::Kollection;
 use konfig::Konfig;
 use kontrol::{Kontrol, Kontroller, Method};
 use route_recognizer::Router;
 
 /// Kong object
-pub struct Kong<I: UserInput> {
+pub struct Kong<I: UserInput, R: Resource + serde::Serialize> {
     /// Kong database
     pub database: Kollection,
     /// Kong configuration
     pub config: Konfig,
     /// Kong router
-    pub router: Router<RouterObject<I>>,
+    pub router: Router<RouterObject<I, R>>,
 }
 
-impl<I: UserInput> Kong<I> {
+impl<I: UserInput, R: Resource + serde::Serialize> Kong<I, R> {
     /// Create new kong instance
-    pub fn new<'a>(kontrollers: Vec<Kontroller<'a, I>>) -> Self {
+    pub fn new<'a>(kontrollers: Vec<Kontroller<'a, I, R>>) -> Self {
         let config = Konfig::read().expect("Could not read configuration file.");
         let admin_db_path = if let Some(path) = &config.admin_accounts_database {
             path.clone()
@@ -66,15 +66,14 @@ impl<I: UserInput> Kong<I> {
     }
 }
 
-pub struct RouterObject<I: UserInput> {
-    kontrol: Kontrol<I>,
-    // TODO: the array length should be the number of http methods
+pub struct RouterObject<I: UserInput, R: Resource + serde::Serialize> {
+    kontrol: Kontrol<I, R>,
     method: Method,
 }
 
-impl<I: UserInput> Copy for RouterObject<I> {}
+impl<I: UserInput, R: Resource + serde::Serialize> Copy for RouterObject<I, R> {}
 
-impl<I: UserInput> Clone for RouterObject<I> {
+impl<I: UserInput, R: Resource + serde::Serialize> Clone for RouterObject<I, R> {
     fn clone(&self) -> Self {
         *self
     }

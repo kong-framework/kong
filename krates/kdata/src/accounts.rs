@@ -1,4 +1,4 @@
-use crate::inputs::AccountCreationInput;
+use crate::{inputs::AccountCreationInput, resource::Resource};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -21,6 +21,8 @@ pub struct Account {
     pub id_number: Option<String>,
     /// The gender of the account holder
     pub gender: Option<String>,
+    /// Short bio of Account
+    pub description: Option<String>,
     //--- Optional Education Data ---//
     /// User's current school name
     pub current_school_name: Option<String>,
@@ -37,10 +39,18 @@ pub struct Account {
     /// Account owner's web-address
     pub website: Option<String>,
     //--- Optional Meta Data ---//
-    /// Short bio of Account
-    pub description: Option<String>,
     /// Date account last logged in
     pub last_login: Option<DateTime<Utc>>,
+}
+
+impl Resource for Account {
+    fn is_authorized(&self, kpassport: krypto::kpassport::Kpassport) -> bool {
+        if kpassport.content.username == self.username {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 impl From<AccountCreationInput> for Account {
@@ -72,6 +82,13 @@ impl From<AccountCreationInput> for Account {
 pub struct PublicAccount {
     /// The username of the user, also used as an unique identifier
     pub username: String,
+}
+
+impl Resource for PublicAccount {
+    fn is_authorized(&self, _kpassport: krypto::kpassport::Kpassport) -> bool {
+        // everyone can access a public account
+        true
+    }
 }
 
 impl From<Account> for PublicAccount {

@@ -24,7 +24,7 @@
 
 pub mod authentication;
 pub mod defaults;
-mod error;
+pub mod error;
 mod key_derivation;
 pub mod kpassport;
 pub mod password;
