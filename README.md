@@ -11,62 +11,61 @@
 
 [documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
 
-## Features
-
-- [ ] Confidentiality
-- [ ] Integrity
-- [ ] Availability
-- [ ] Database Management
-- [ ] Session Management
-- [ ] HTTP+JSON API
-- [ ] Optional Federation
-- [ ] Built in HTTP server
-- [ ] Account Management
-
-
-## Usage
-
 ``` rust
-use kong::prelude::*;
+use kong::prelude::{
+    kdata::resource::{GenericResource, ResourceError},
+    *,
+};
 use std::sync::Mutex;
 
 /// Handle request
 fn welcome(
-    _kong: &mut Kong<kdata::inputs::NoInput>,
+    _kong: &mut Kong<kdata::inputs::NoInput, GenericResource>,
     _input: Option<kdata::inputs::NoInput>,
-) -> server::Response {
-    server::Response::text("Welcome!")
+    _kpassport: Option<kpassport::Kpassport>,
+) -> Result<GenericResource, ResourceError> {
+    Ok(GenericResource {
+        message: "Welcome!".to_string(),
+    })
 }
 
 /// Handle request
 fn say_hello(
-    _kong: &mut Kong<kdata::inputs::NoInput>,
+    _kong: &mut Kong<kdata::inputs::NoInput, GenericResource>,
     _input: Option<kdata::inputs::NoInput>,
-) -> server::Response {
-    server::Response::text("Hello; world!")
+    _kpassport: Option<kpassport::Kpassport>,
+) -> Result<GenericResource, ResourceError> {
+    Ok(GenericResource {
+        message: "Hello World!".to_string().to_string(),
+    })
 }
 
 fn say_bye(
-    _kong: &mut Kong<kdata::inputs::NoInput>,
+    _kong: &mut Kong<kdata::inputs::NoInput, kdata::resource::GenericResource>,
     _input: Option<kdata::inputs::NoInput>,
-) -> server::Response {
-    server::Response::text("bye bye!")
+    _kpassport: Option<kpassport::Kpassport>,
+) -> Result<GenericResource, ResourceError> {
+    Ok(GenericResource {
+        message: "bye bye".to_string().to_string(),
+    })
 }
 
 fn main() -> Result<(), KError> {
-    let welcome_kontrol: Kontrol<kdata::inputs::NoInput> = Kontrol {
-        get_input: None,
-        validate: None,
-        kontrol: welcome,
-    };
+    let welcome_kontrol: Kontrol<kdata::inputs::NoInput, kdata::resource::GenericResource> =
+        Kontrol {
+            get_input: None,
+            validate: None,
+            kontrol: welcome,
+        };
 
-    let hello_kontrol: Kontrol<kdata::inputs::NoInput> = Kontrol {
-        get_input: None,
-        validate: None,
-        kontrol: say_hello,
-    };
+    let hello_kontrol: Kontrol<kdata::inputs::NoInput, kdata::resource::GenericResource> =
+        Kontrol {
+            get_input: None,
+            validate: None,
+            kontrol: say_hello,
+        };
 
-    let bye_kontrol: Kontrol<kdata::inputs::NoInput> = Kontrol {
+    let bye_kontrol: Kontrol<kdata::inputs::NoInput, kdata::resource::GenericResource> = Kontrol {
         get_input: None,
         validate: None,
         kontrol: say_bye,
@@ -90,7 +89,7 @@ fn main() -> Result<(), KError> {
         method: Method::Get,
     };
 
-    let kong: Mutex<Kong<_>> = Mutex::new(Kong::new(vec![
+    let kong: Mutex<Kong<_, _>> = Mutex::new(Kong::new(vec![
         welcome_kontroller,
         hello_kontroller,
         bye_kontroller,
