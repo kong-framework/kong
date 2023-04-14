@@ -3,7 +3,7 @@
 
 use crate::RouterObject;
 use crate::{kontrol::Method, Kong};
-use kdata::resource::{self, ResourceError};
+use kdata::resource::ResourceError;
 use kdata::{
     accounts::Account,
     inputs::{AccountAuthInput, UserInput},
@@ -21,6 +21,19 @@ impl Kroute {
         kong: &mut Kong<I, R>,
         request: &rouille::Request,
     ) -> rouille::Response {
+        // Check if it is the login route
+        if let Some(route) = &kong.config.auth_route {
+            if &request.url() == route {
+                // Check if login HTTP method is correct
+                if request.method() == "POST" {
+                    let auth_input = IssueKpassport::get_input(request);
+                    return IssueKpassport::handle(kong, auth_input, None);
+                } else {
+                    return ErrorResponse::not_allowed();
+                }
+            }
+        }
+
         // Handle static files
         if let Some(path) = &kong.config.static_files_path {
             let response = rouille::match_assets(request, &path);
@@ -144,8 +157,8 @@ impl Kroute {
                 _ => unimplemented!(),
             }
         } else {
-            // TODO: implement
-            unimplemented!()
+            // Cookie not found
+            Err(KryptoError::InvalidKpassport)
         }
     }
 }
@@ -154,39 +167,20 @@ impl Kroute {
 struct IssueKpassport;
 
 impl IssueKpassport {
-    fn get_input(request: &rouille::Request) -> AccountAuthInput {
-        let input: AccountAuthInput = rouille::input::json_input(request).unwrap();
-        input
-    }
+    fn get_input(request: &rouille::Request) -> Option<AccountAuthInput> {
+        let input: Result<AccountAuthInput, rouille::input::json::JsonError> =
+            rouille::input::json_input(request);
 
-    fn cookie_auth(
-        account: Account,
-        host: &str,
-        signing_key: &str,
-        cookie_name: &str,
-    ) -> rouille::Response {
-        // Create cookie
-        let cookie = krypto::authentication::Auth::issue_kpassport_cookie(
-            &account.username,
-            host,
-            signing_key,
-            cookie_name,
-        );
-
-        match cookie {
-            Ok(cookie) => {
-                let mut response = rouille::Response::text("");
-                response.headers.push(cookie);
-                response.status_code = 200;
-                response
-            }
-            Err(_) => ErrorResponse::internal(),
+        if let Ok(input) = input {
+            Some(input)
+        } else {
+            None
         }
     }
 
     /// Authenticate user
-    fn handle(
-        kong: &mut Kong<AccountAuthInput, GenericResource>,
+    fn handle<I: UserInput, R: Resource + serde::Serialize>(
+        kong: &mut Kong<I, R>,
         input: Option<AccountAuthInput>,
         _kpassport: Option<Kpassport>,
     ) -> rouille::Response {
@@ -225,6 +219,31 @@ impl IssueKpassport {
             }
         } else {
             ErrorResponse::bad_request()
+        }
+    }
+
+    fn cookie_auth(
+        account: Account,
+        host: &str,
+        signing_key: &str,
+        cookie_name: &str,
+    ) -> rouille::Response {
+        // Create cookie
+        let cookie = krypto::authentication::Auth::issue_kpassport_cookie(
+            &account.username,
+            host,
+            signing_key,
+            cookie_name,
+        );
+
+        match cookie {
+            Ok(cookie) => {
+                let mut response = rouille::Response::text("");
+                response.headers.push(cookie);
+                response.status_code = 200;
+                response
+            }
+            Err(_) => ErrorResponse::internal(),
         }
     }
 }
