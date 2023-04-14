@@ -13,7 +13,6 @@
 
 use kdata::accounts::{Account, PublicAccount};
 use kerror::KError;
-
 use rusqlite::{params, Connection};
 
 /// SQL statements and queries
@@ -54,48 +53,67 @@ pub mod sql {
       VALUES (?1, ?2, ?3, ?4)";
 }
 
+/// Input needed to create a new collection
+pub struct KollectionInput {
+    /// Path to accounts database
+    pub accounts: Option<String>,
+}
+
 /// Database management system
 pub struct Kollection {
-    /// Database file path
-    path: String,
-    /// An SQLite connection handle
+    /// Accounts Database file path and connection
+    accounts: Accounts,
+}
+
+/// Account db path and connection
+struct Accounts {
+    /// Path where the database is located
+    location: Option<String>,
     conn: Option<Connection>,
 }
 
 impl Kollection {
     /// Create a new database controller
-    pub fn new(path: &str) -> Self {
+    pub fn new(input: KollectionInput) -> Self {
         Kollection {
-            path: path.to_string(),
-            conn: None,
+            accounts: Accounts {
+                location: input.accounts,
+                conn: None,
+            },
         }
     }
 
     /// Open SQLite connection, create tables
     pub fn connect(&mut self) -> Result<(), KError> {
-        // Open database connection
-        let mut conn = Connection::open(self.path.clone()).map_err(|_| KError::DbConnection)?;
-        self.conn = Some(conn);
+        // Open database connections
 
-        // Create database tables if they do not already exist
-        match &mut self.conn {
-            Some(conn) => {
-                let tx = conn.transaction().map_err(|_| KError::DbTransaction)?;
+        // Open accounts database connection
+        if let Some(location) = &self.accounts.location {
+            let mut conn = Connection::open(location).map_err(|_| KError::DbConnection)?;
+            self.accounts.conn = Some(conn);
 
-                tx.execute(sql::CREATE_ACCOUNTS_TABLE, ())
-                    .map_err(|_| KError::DbTableCreation)?;
+            // Create database tables if they do not already exist
+            match &mut self.accounts.conn {
+                Some(conn) => {
+                    let tx = conn.transaction().map_err(|_| KError::DbTransaction)?;
 
-                tx.commit().map_err(|_| KError::DbTableCreation)?;
+                    tx.execute(sql::CREATE_ACCOUNTS_TABLE, ())
+                        .map_err(|_| KError::DbTableCreation)?;
 
-                Ok(())
+                    tx.commit().map_err(|_| KError::DbTableCreation)?;
+
+                    Ok(())
+                }
+                None => Err(KError::DbConnection),
             }
-            None => Err(KError::DbConnection),
+        } else {
+            Ok(())
         }
     }
 
     /// Create a new account
     pub fn create_account(&self, account: &Account) -> Result<(), KError> {
-        match &self.conn {
+        match &self.accounts.conn {
             Some(conn) => {
                 conn.execute(
                     sql::CREATE_ACCOUNT,
@@ -118,7 +136,7 @@ impl Kollection {
         &self,
         username: &str,
     ) -> Result<Option<PublicAccount>, KError> {
-        match &self.conn {
+        match &self.accounts.conn {
             Some(conn) => {
                 let mut stmt = conn
                     .prepare(sql::GET_ACCOUNT_BY_USERNAME)
@@ -142,7 +160,7 @@ impl Kollection {
         &self,
         email: &str,
     ) -> Result<Option<PublicAccount>, KError> {
-        match &self.conn {
+        match &self.accounts.conn {
             Some(conn) => {
                 let mut stmt = conn
                     .prepare(sql::GET_ACCOUNT_BY_EMAIL)
@@ -163,7 +181,7 @@ impl Kollection {
 
     /// Get an account's private data by its email
     pub fn private_get_account_by_email(&self, email: &str) -> Result<Option<Account>, KError> {
-        match &self.conn {
+        match &self.accounts.conn {
             Some(conn) => {
                 let mut stmt = conn
                     .prepare(sql::GET_ACCOUNT_BY_EMAIL)
@@ -201,7 +219,7 @@ impl Kollection {
         &self,
         username: &str,
     ) -> Result<Option<Account>, KError> {
-        match &self.conn {
+        match &self.accounts.conn {
             Some(conn) => {
                 let mut stmt = conn
                     .prepare(sql::GET_ACCOUNT_BY_USERNAME)
@@ -245,12 +263,15 @@ mod test {
 
     #[test]
     fn connect_db() {
-        let mut db = Kollection::new(TEST_DB_PATH);
+        let input = super::KollectionInput {
+            accounts: Some(TEST_DB_PATH.to_string()),
+        };
+        let mut db = Kollection::new(input);
 
         // Connect to database
         db.connect().unwrap();
 
-        match db.conn {
+        match db.accounts.conn {
             Some(_conn) => assert!(true),
             _ => assert!(false),
         }
@@ -259,7 +280,11 @@ mod test {
     #[test]
     fn test_store_get_account_account() {
         remove_test_db();
-        let mut db = Kollection::new(TEST_DB_PATH);
+        let input = super::KollectionInput {
+            accounts: Some(TEST_DB_PATH.to_string()),
+        };
+        let mut db = Kollection::new(input);
+
         let account = Account {
             username: String::from("testuszee"),
             password: String::from("12345678910"),
@@ -300,7 +325,11 @@ mod test {
     #[test]
     fn test_store_get_account_account_private() {
         //remove_test_db();
-        let mut db = Kollection::new(TEST_DB_PATH);
+        let input = super::KollectionInput {
+            accounts: Some(TEST_DB_PATH.to_string()),
+        };
+        let mut db = Kollection::new(input);
+
         let account = Account {
             username: String::from("testus"),
             password: String::from("12345678910"),
