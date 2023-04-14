@@ -27,7 +27,7 @@ impl Kroute {
                 // Check if login HTTP method is correct
                 if request.method() == "POST" {
                     let auth_input = IssueKpassport::get_input(request);
-                    return IssueKpassport::handle(kong, auth_input, None);
+                    return IssueKpassport::handle(kong, auth_input);
                 } else {
                     return ErrorResponse::not_allowed();
                 }
@@ -182,7 +182,6 @@ impl IssueKpassport {
     fn handle<I: UserInput, R: Resource + serde::Serialize>(
         kong: &mut Kong<I, R>,
         input: Option<AccountAuthInput>,
-        _kpassport: Option<Kpassport>,
     ) -> rouille::Response {
         if let Some(input) = input {
             // Find user account in database
