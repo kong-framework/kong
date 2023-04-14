@@ -17,7 +17,10 @@ mod kroute;
 pub mod prelude;
 use kdata::{inputs::UserInput, resource::Resource};
 use kollection::{Kollection, KollectionInput};
-use konfig::{defaults::WORKING_DIRECTORY, Konfig};
+use konfig::{
+    defaults::{DBS_DIRECTORY, WORKING_DIRECTORY},
+    Konfig,
+};
 use kontrol::{Kontrol, Kontroller, Method};
 use route_recognizer::Router;
 
@@ -35,6 +38,7 @@ impl<I: UserInput, R: Resource + serde::Serialize> Kong<I, R> {
     /// Create new kong instance
     pub fn new<'a>(kontrollers: Vec<Kontroller<'a, I, R>>) -> Self {
         let config = Konfig::read().expect("Could not read configuration file.");
+        create_dirs(&config);
         let mut kollection_input = KollectionInput { accounts: None };
 
         if config.accounts {
@@ -77,5 +81,29 @@ impl<I: UserInput, R: Resource + serde::Serialize> Copy for RouterObject<I, R> {
 impl<I: UserInput, R: Resource + serde::Serialize> Clone for RouterObject<I, R> {
     fn clone(&self) -> Self {
         *self
+    }
+}
+
+/// Create the directories that are required by kong, if they dont
+/// already exit
+fn create_dirs(config: &Konfig) {
+    let working_dir = if let Some(working_dir) = &config.working_directory {
+        working_dir.clone()
+    } else {
+        WORKING_DIRECTORY.to_string()
+    };
+    let dbs = DBS_DIRECTORY;
+    let database_dir = format!("{working_dir}{dbs}");
+    let database_dir = std::path::Path::new(&database_dir);
+    let working_dir = std::path::Path::new(&working_dir);
+
+    if !std::path::Path::exists(working_dir) {
+        // create working directory
+        std::fs::create_dir(working_dir).unwrap()
+    }
+
+    if !std::path::Path::exists(database_dir) {
+        // create databases directory
+        std::fs::create_dir(database_dir).unwrap()
     }
 }
