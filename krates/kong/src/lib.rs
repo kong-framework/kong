@@ -18,7 +18,7 @@ pub mod prelude;
 use kdata::{inputs::UserInput, resource::Resource};
 use kollection::{Kollection, KollectionInput};
 use konfig::{
-    defaults::{DBS_DIRECTORY, WORKING_DIRECTORY},
+    defaults::{ACCONTS_DB, DBS_DIRECTORY, WORKING_DIRECTORY},
     Konfig,
 };
 use kontrol::{Kontrol, Kontroller, Method};
@@ -42,8 +42,13 @@ impl<I: UserInput, R: Resource + serde::Serialize> Kong<I, R> {
         let mut kollection_input = KollectionInput { accounts: None };
 
         if config.accounts {
-            let working_dir = WORKING_DIRECTORY;
-            let path = format!("{working_dir}db");
+            let working_dir = if let Some(dir) = &config.working_directory {
+                dir.clone()
+            } else {
+                WORKING_DIRECTORY.to_string()
+            };
+            let db = ACCONTS_DB;
+            let path = format!("{working_dir}{db}");
             kollection_input.accounts = Some(path);
         }
 

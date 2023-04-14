@@ -89,7 +89,7 @@ impl Kollection {
 
         // Open accounts database connection
         if let Some(location) = &self.accounts.location {
-            let mut conn = Connection::open(location).map_err(|_| KError::DbConnection)?;
+            let conn = Connection::open(location).map_err(|_| KError::DbConnection)?;
             self.accounts.conn = Some(conn);
 
             // Create database tables if they do not already exist
