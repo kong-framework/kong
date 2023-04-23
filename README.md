@@ -22,12 +22,12 @@ fn main() {
     let address = format!("localhost:{}", port);
 
     println!("kong example running @ {address}");
-    kroute(&address, vec![Box::new(HelloKontrolHandler)]);
+    kroute(&address, vec![Box::new(HelloKontroller)]);
 }
 
 /// Hello API endpoint controller
-struct HelloKontrolHandler;
-impl Kontrol for HelloKontrolHandler {
+struct HelloKontroller;
+impl Kontrol for HelloKontroller {
     fn address(&self) -> String {
         "/hello".to_string()
     }
@@ -37,8 +37,10 @@ impl Kontrol for HelloKontrolHandler {
     }
 
     fn kontrol(&self, _kong: &Kong) -> Result<serde_json::Value, ResourceError> {
-        let resource = GenericResource::json("Hello, World");
-        Ok(resource)
+        let resource = GenericResource {
+            message: "Hello, World".to_string(),
+        };
+        Ok(resource.as_json())
     }
 }
 ```
