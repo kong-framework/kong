@@ -1,33 +1,36 @@
-//! # kroute
-//! `kong` request routing
-
-use crate::RouterObject;
-use crate::{kontrol::Method, Kong};
-use kdata::resource::ResourceError;
-use kdata::{
-    accounts::Account,
-    inputs::{AccountAuthInput, UserInput},
-    resource::{GenericResource, Resource},
+use crate::{
+    kontrol::{error_response::ErrorResponse, issue_kpassport::IssueKpassport, Kontrol, Method},
+    Kong,
 };
-use krypto::{error::KryptoError, kpassport::Kpassport};
-use serde::Serialize;
-use std::str::FromStr;
-/// Kong request routing
-pub struct Kroute;
 
-impl Kroute {
-    /// Kong request router
-    pub fn kroute<I: UserInput, R: Resource + serde::Serialize>(
-        kong: &mut Kong<I, R>,
-        request: &rouille::Request,
-    ) -> rouille::Response {
+use krypto::{error::KryptoError, kpassport::Kpassport};
+use route_recognizer::Router;
+use std::str::FromStr;
+use std::sync::Mutex;
+
+/// Kong request routing
+pub fn kroute(
+    address: &str,
+    kontrollers: Vec<Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>>,
+) -> rouille::Response {
+    let kong: Mutex<Kong> = Mutex::new(Kong::new());
+    let mut router = Router::new();
+
+    // prepare kontrollers
+    for kontrol in kontrollers {
+        router.add(&kontrol.address(), kontrol);
+    }
+
+    rouille::start_server(address, move |request| {
+        let mut kong = kong.lock().unwrap();
+
         // Check if it is the login route
         if let Some(route) = &kong.config.auth_route {
             if &request.url() == route {
                 // Check if login HTTP method is correct
                 if request.method() == "POST" {
                     let auth_input = IssueKpassport::get_input(request);
-                    return IssueKpassport::handle(kong, auth_input);
+                    return IssueKpassport::handle(&mut kong, auth_input);
                 } else {
                     return ErrorResponse::not_allowed();
                 }
@@ -42,276 +45,101 @@ impl Kroute {
             }
         }
 
-        let router = kong.router.clone();
         // check request url
         let recognized_route = router.recognize(&request.url());
 
         match recognized_route {
-            Ok(mut route) => {
-                // check if HTTP method is supported
-                if Kroute::is_method_supported(request, &mut route) {
-                    let kontrol = (route.handler_mut()).kontrol.kontrol;
-                    Kroute::respond(kong, request, &mut route, kontrol)
+            Ok(route) => {
+                if let Ok(kpassport) = get_valid_auth_token(&kong, request) {
+                    kong.kpassport = Some(kpassport);
                 } else {
-                    ErrorResponse::not_allowed()
+                    kong.kpassport = None
+                };
+
+                let expected_method = route.handler().method();
+                let input_json_str = route.handler().get_input(request);
+
+                // validate input_json_str
+                if let Ok(input) = route.handler().validate(input_json_str) {
+                    kong.input = input;
+                    let resource = route.handler().kontrol(&mut kong);
+
+                    // check if HTTP method is supported
+                    if is_method_supported(request, &expected_method) {
+                        match resource {
+                            Ok(resource) => {
+                                rouille::Response::json(&resource).with_status_code(201)
+                            }
+                            Err(err) => ErrorResponse::map_resource_error(err),
+                        }
+                    } else {
+                        ErrorResponse::not_allowed()
+                    }
+                } else {
+                    ErrorResponse::bad_request()
                 }
             }
             Err(_) => ErrorResponse::not_found(),
         }
-    }
+    })
+}
 
-    /// finally respond to the server after all pre-processing has been
-    /// done on the request
-    fn respond<I: UserInput, R: Resource + serde::Serialize>(
-        kong: &mut Kong<I, R>,
-        request: &rouille::Request,
-        route: &mut route_recognizer::Match<&RouterObject<I, R>>,
-        kontrol: fn(
-            &mut Kong<I, R>,
-            Option<I>,
-            kpassport: Option<Kpassport>,
-        ) -> Result<R, ResourceError>,
-    ) -> rouille::Response {
-        let kpassport = if let Ok(kpassport) = Kroute::get_valid_auth_token(kong, request) {
-            Some(kpassport)
-        } else {
-            None
-        };
-
-        // Get user input
-        if let Some(get_input) = (route.handler_mut()).kontrol.get_input {
-            let input = get_input(request);
-            // handle request with user input
-            let resource = kontrol(kong, input, kpassport);
-            match resource {
-                Ok(resource) => rouille::Response::json(&resource).with_status_code(201),
-                Err(err) => ErrorResponse::map_resource_error(err),
-            }
-        } else {
-            // handle request with no user input
-            let resource = kontrol(kong, None, kpassport);
-            match resource {
-                Ok(resource) => rouille::Response::json(&resource).with_status_code(201),
-                Err(err) => ErrorResponse::map_resource_error(err),
-            }
-        }
-    }
-    /// Check HTTP method
-    fn is_method_supported<I: UserInput, R: Resource + serde::Serialize>(
-        request: &rouille::Request,
-        route: &mut route_recognizer::Match<&RouterObject<I, R>>,
-    ) -> bool {
-        if let Ok(request_method) = Method::from_str(&request.method()) {
-            let supported_method = &route.handler_mut().method;
-            // check if method is supported by handler
-            if supported_method == &request_method {
-                true
-            } else {
-                false
-            }
+/// Check HTTP method
+fn is_method_supported(request: &rouille::Request, expected_method: &Method) -> bool {
+    if let Ok(request_method) = Method::from_str(request.method()) {
+        let supported_method = expected_method;
+        // check if method is supported by handler
+        if supported_method == &request_method {
+            true
         } else {
             false
         }
+    } else {
+        false
     }
+}
 
-    /// check if client auth token is valid
-    fn get_valid_auth_token<I: UserInput, R: Resource + serde::Serialize>(
-        kong: &Kong<I, R>,
-        request: &rouille::Request,
-    ) -> Result<Kpassport, KryptoError> {
-        let cookie_signing_key = &kong.config.secret_key;
-        let auth_cookie_name = &kong.config.auth_cookie_name;
+/// check if client auth token is valid
+fn get_valid_auth_token(kong: &Kong, request: &rouille::Request) -> Result<Kpassport, KryptoError> {
+    let cookie_signing_key = &kong.config.secret_key;
+    let auth_cookie_name = &kong.config.auth_cookie_name;
 
-        if let Ok(kpassport) = Kroute::get_cookie_token(auth_cookie_name, request) {
-            // validate kpassport
-            if kpassport.validate(cookie_signing_key).is_ok() {
-                Ok(kpassport)
-            } else {
-                Err(KryptoError::InvalidKpassport)
-            }
+    if let Ok(kpassport) = get_cookie_token(auth_cookie_name, request) {
+        // validate kpassport
+        if kpassport.validate(cookie_signing_key).is_ok() {
+            Ok(kpassport)
         } else {
             Err(KryptoError::InvalidKpassport)
         }
-    }
-
-    /// check if request is authorized based on the authorization cookie
-    fn get_cookie_token(
-        auth_cookie_name: &str,
-        request: &rouille::Request,
-    ) -> Result<krypto::kpassport::Kpassport, krypto::error::KryptoError> {
-        if let Some((_, cookie_value)) =
-            rouille::input::cookies(request).find(|&(n, _)| n == auth_cookie_name)
-        {
-            let auth = krypto::authentication::AuthHeaders {
-                cookie: Some(cookie_value),
-                bearer_token: None,
-            };
-            // TODO: don't use unwrap
-            let auth = krypto::authentication::Auth::detect_auth_type(auth).unwrap();
-
-            match auth {
-                krypto::authentication::Auth::Cookie(kpassport_str) => {
-                    krypto::kpassport::Kpassport::from_str(&kpassport_str)
-                }
-                // TODO: implement
-                _ => unimplemented!(),
-            }
-        } else {
-            // Cookie not found
-            Err(KryptoError::InvalidKpassport)
-        }
+    } else {
+        Err(KryptoError::InvalidKpassport)
     }
 }
 
-/// Issue kpassport in other words login
-struct IssueKpassport;
+/// check if request is authorized based on the authorization cookie
+fn get_cookie_token(
+    auth_cookie_name: &str,
+    request: &rouille::Request,
+) -> Result<krypto::kpassport::Kpassport, krypto::error::KryptoError> {
+    if let Some((_, cookie_value)) =
+        rouille::input::cookies(request).find(|&(n, _)| n == auth_cookie_name)
+    {
+        let auth = krypto::authentication::AuthHeaders {
+            cookie: Some(cookie_value),
+            bearer_token: None,
+        };
+        // TODO: don't use unwrap
+        let auth = krypto::authentication::Auth::detect_auth_type(auth).unwrap();
 
-impl IssueKpassport {
-    fn get_input(request: &rouille::Request) -> Option<AccountAuthInput> {
-        let input: Result<AccountAuthInput, rouille::input::json::JsonError> =
-            rouille::input::json_input(request);
-
-        if let Ok(input) = input {
-            Some(input)
-        } else {
-            None
-        }
-    }
-
-    /// Authenticate user
-    fn handle<I: UserInput, R: Resource + serde::Serialize>(
-        kong: &mut Kong<I, R>,
-        input: Option<AccountAuthInput>,
-    ) -> rouille::Response {
-        if let Some(input) = input {
-            // Find user account in database
-            let account = kong
-                .database
-                .private_get_account_by_username(&input.username);
-
-            match account {
-                Ok(account) => {
-                    if let Some(account) = account {
-                        // Verify user password
-                        match krypto::password::verify(&account.password, &input.password) {
-                            Ok(password_verification) => {
-                                if password_verification {
-                                    // Password correct, create cookie based sessions
-                                    IssueKpassport::cookie_auth(
-                                        account,
-                                        &kong.config.host,
-                                        &kong.config.secret_key,
-                                        &kong.config.auth_cookie_name,
-                                    )
-                                } else {
-                                    // Wrong password provided
-                                    ErrorResponse::bad_request()
-                                }
-                            }
-                            Err(_) => ErrorResponse::internal(),
-                        }
-                    } else {
-                        ErrorResponse::bad_request()
-                    }
-                }
-                Err(_) => ErrorResponse::not_found(),
+        match auth {
+            krypto::authentication::Auth::Cookie(kpassport_str) => {
+                krypto::kpassport::Kpassport::from_str(&kpassport_str)
             }
-        } else {
-            ErrorResponse::bad_request()
+            // TODO: implement
+            _ => unimplemented!(),
         }
-    }
-
-    fn cookie_auth(
-        account: Account,
-        host: &str,
-        signing_key: &str,
-        cookie_name: &str,
-    ) -> rouille::Response {
-        // Create cookie
-        let cookie = krypto::authentication::Auth::issue_kpassport_cookie(
-            &account.username,
-            host,
-            signing_key,
-            cookie_name,
-        );
-
-        match cookie {
-            Ok(cookie) => {
-                let mut response = rouille::Response::text("");
-                response.headers.push(cookie);
-                response.status_code = 200;
-                response
-            }
-            Err(_) => ErrorResponse::internal(),
-        }
-    }
-}
-
-/// API request handling error
-#[derive(Serialize)]
-pub struct ErrorResponse {
-    pub error_message: String,
-}
-
-impl ErrorResponse {
-    pub fn bad_request() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Bad request".to_string(),
-        })
-        .with_status_code(400)
-    }
-    pub fn unauthorized() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Unauthorized".to_string(),
-        })
-        .with_status_code(401)
-    }
-    pub fn forbidden() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Forbidden".to_string(),
-        })
-        .with_status_code(402)
-    }
-    pub fn not_found() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Could not find resource".to_string(),
-        })
-        .with_status_code(404)
-    }
-    pub fn not_allowed() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Method Not Allowed".to_string(),
-        })
-        .with_status_code(405)
-    }
-    pub fn conflict() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Conflict".to_string(),
-        })
-        .with_status_code(405)
-    }
-    pub fn pre_condition() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Pre-Condition failed".to_string(),
-        })
-        .with_status_code(412)
-    }
-    pub fn internal() -> rouille::Response {
-        rouille::Response::json(&ErrorResponse {
-            error_message: "Internal Server Error".to_string(),
-        })
-        .with_status_code(500)
-    }
-
-    pub fn map_resource_error(err: ResourceError) -> rouille::Response {
-        match err {
-            ResourceError::BadRequest => ErrorResponse::bad_request(),
-            ResourceError::Unauthorized => ErrorResponse::unauthorized(),
-            ResourceError::NotFound => ErrorResponse::not_found(),
-            ResourceError::Forbidden => ErrorResponse::forbidden(),
-            ResourceError::Conflict => ErrorResponse::conflict(),
-            ResourceError::PreConditionFailed => ErrorResponse::pre_condition(),
-            ResourceError::Internal => ErrorResponse::internal(),
-        }
+    } else {
+        // Cookie not found
+        Err(KryptoError::InvalidKpassport)
     }
 }

@@ -11,7 +11,8 @@ documentation = "https://kwatafana.org/kong"
 [workspace.dependencies]
 
 ############################## [Data] ################################
-serde = { version = "1.0.144", features = ["derive"] } # A generic serialization/deserialization framework 
+serde = { version = "1.0.144", features = ["derive"] } # A generic serialization/deserialization framework
+serde_json = {version = "1.0.73"}
 toml = "0.5.9" # Encoder and decoder of TOML-formatted files and streams
 base64 = "0.21.0" # encodes and decodes base64 as bytes or utf8
 hex = "0.4.3" # Encoding and decoding data into/from hexadecimal representation. 

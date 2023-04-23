@@ -1,24 +1,15 @@
 //! A resource that can be accessed via http
-use krypto::kpassport::Kpassport;
-use serde::Serialize;
+use serde_json::json;
 use std::fmt;
 
-/// A resource that can be accessed via http
-pub trait Resource {
-    /// check if kpassport has authority to access resource
-    fn is_authorized(&self, kpassport: Kpassport) -> bool;
-}
-
-/// Marker struct to represent a generic resource
-#[derive(Serialize)]
+/// A generic resource
 pub struct GenericResource {
     pub message: String,
 }
-
-impl Resource for GenericResource {
-    fn is_authorized(&self, _kpassport: Kpassport) -> bool {
-        // anyone can access it
-        true
+impl GenericResource {
+    /// new generic resource
+    pub fn as_json(&self) -> serde_json::Value {
+        json!({ "message": self.message })
     }
 }
 

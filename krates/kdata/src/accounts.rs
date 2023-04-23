@@ -1,6 +1,7 @@
-use crate::{inputs::AccountCreationInput, resource::Resource};
+use crate::inputs::AccountCreationInput;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 /// A generic account
 #[derive(Deserialize, Serialize)]
@@ -41,16 +42,8 @@ pub struct Account {
     //--- Optional Meta Data ---//
     /// Date account last logged in
     pub last_login: Option<DateTime<Utc>>,
-}
-
-impl Resource for Account {
-    fn is_authorized(&self, kpassport: krypto::kpassport::Kpassport) -> bool {
-        if kpassport.content.username == self.username {
-            true
-        } else {
-            false
-        }
-    }
+    /// Type of account, eg `admin`
+    pub account_type: Option<String>,
 }
 
 impl From<AccountCreationInput> for Account {
@@ -73,6 +66,7 @@ impl From<AccountCreationInput> for Account {
             website: None,
             description: None,
             last_login: None,
+            account_type: None,
         }
     }
 }
@@ -84,13 +78,14 @@ pub struct PublicAccount {
     pub username: String,
 }
 
-impl Resource for PublicAccount {
-    fn is_authorized(&self, _kpassport: krypto::kpassport::Kpassport) -> bool {
-        // everyone can access a public account
-        true
+impl PublicAccount {
+    /// new generic resource
+    pub fn as_json(&self) -> serde_json::Value {
+        json!({
+            "username": self.username,
+        })
     }
 }
-
 impl From<Account> for PublicAccount {
     fn from(account: Account) -> Self {
         PublicAccount {

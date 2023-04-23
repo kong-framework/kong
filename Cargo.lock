@@ -426,6 +426,7 @@ name = "hello"
 version = "0.1.0"
 dependencies = [
  "kong",
+ "serde_json",
 ]
 
 [[package]]
@@ -555,6 +556,7 @@ dependencies = [
  "chrono",
  "krypto",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -592,6 +594,7 @@ dependencies = [
  "rouille",
  "route-recognizer",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

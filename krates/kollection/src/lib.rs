@@ -34,7 +34,8 @@ pub mod sql {
         mobile_number TEXT,                          -- Account owner's mobile number
         website TEXT,                                -- Account owner's web-address
         description TEXT,                            -- Short bio of Account
-        last_login TEXT)                             -- Date account last logged in";
+        last_login TEXT,                              -- Date account last logged in
+        account_type TEXT)                           -- Type of account, eg `admin`";
 
     /// Get account by username
     pub const GET_ACCOUNT_BY_USERNAME: &str = "SELECT * FROM accounts WHERE username = :username;";
@@ -51,6 +52,17 @@ pub mod sql {
         created
        )
       VALUES (?1, ?2, ?3, ?4)";
+
+    /// Insert a admin account in the accounts table
+    pub const CREATE_ADMIN_ACCOUNT: &str = "
+      INSERT INTO accounts (
+        username,
+        email,
+        password,
+        created,
+        account_type
+       )
+      VALUES (?1, ?2, ?3, ?4, ?5)";
 }
 
 /// Input needed to create a new collection
@@ -125,6 +137,28 @@ impl Kollection {
                     ],
                 )
                 .map_err(|_| KError::DbField)?;
+                Ok(())
+            }
+            None => Err(KError::DbConnection),
+        }
+    }
+
+    /// Create a new admin account
+    pub fn create_admin_account(&self, account: &Account) -> Result<(), KError> {
+        match &self.accounts.conn {
+            Some(conn) => {
+                conn.execute(
+                    sql::CREATE_ADMIN_ACCOUNT,
+                    params![
+                        &account.username,
+                        &account.email,
+                        account.password,
+                        account.created,
+                        &account.account_type
+                    ],
+                )
+                .map_err(|_| KError::DbField)?;
+
                 Ok(())
             }
             None => Err(KError::DbConnection),
@@ -206,6 +240,7 @@ impl Kollection {
                         website: s.get(13).map_err(|_| KError::DbField)?,
                         description: s.get(14).map_err(|_| KError::DbField)?,
                         last_login: s.get(15).map_err(|_| KError::DbField)?,
+                        account_type: s.get(16).map_err(|_| KError::DbField)?,
                     })),
                     None => Ok(None),
                 }
@@ -244,6 +279,7 @@ impl Kollection {
                         website: s.get(13).map_err(|_| KError::DbField)?,
                         description: s.get(14).map_err(|_| KError::DbField)?,
                         last_login: s.get(15).map_err(|_| KError::DbField)?,
+                        account_type: s.get(16).map_err(|_| KError::DbField)?,
                     })),
                     None => Ok(None),
                 }

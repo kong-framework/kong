@@ -15,28 +15,28 @@
 mod kontrol;
 mod kroute;
 pub mod prelude;
-use kdata::{inputs::UserInput, resource::Resource};
 use kollection::{Kollection, KollectionInput};
 use konfig::{
     defaults::{ACCONTS_DB, DBS_DIRECTORY, WORKING_DIRECTORY},
     Konfig,
 };
-use kontrol::{Kontrol, Kontroller, Method};
-use route_recognizer::Router;
+use krypto::kpassport::Kpassport;
 
 /// Kong object
-pub struct Kong<I: UserInput, R: Resource + serde::Serialize> {
+pub struct Kong {
     /// Kong database
     pub database: Kollection,
     /// Kong configuration
     pub config: Konfig,
-    /// Kong router
-    pub router: Router<RouterObject<I, R>>,
+    /// Request authentication + authorization token
+    pub kpassport: Option<Kpassport>,
+    /// Validated user input
+    pub input: Option<serde_json::Value>,
 }
 
-impl<I: UserInput, R: Resource + serde::Serialize> Kong<I, R> {
+impl Kong {
     /// Create new kong instance
-    pub fn new<'a>(kontrollers: Vec<Kontroller<'a, I, R>>) -> Self {
+    pub fn new() -> Self {
         let config = Konfig::read().expect("Could not read configuration file.");
         create_dirs(&config);
         let mut kollection_input = KollectionInput { accounts: None };
@@ -53,39 +53,17 @@ impl<I: UserInput, R: Resource + serde::Serialize> Kong<I, R> {
         }
 
         let database = Kollection::new(kollection_input);
-        let mut router = Router::new();
-
-        for kontroller in &kontrollers {
-            let router_object = RouterObject {
-                kontrol: kontroller.kontrol,
-                method: kontroller.method,
-            };
-            router.add(kontroller.address, router_object);
-        }
 
         Kong {
             database,
             config,
-            router,
+            kpassport: None,
+            input: None,
         }
     }
     /// Start up runtime
     pub fn start(&mut self) -> Result<(), kerror::KError> {
         self.database.connect()
-    }
-}
-
-/// Requests object to processed by Kroute
-pub struct RouterObject<I: UserInput, R: Resource + serde::Serialize> {
-    kontrol: Kontrol<I, R>,
-    method: Method,
-}
-
-impl<I: UserInput, R: Resource + serde::Serialize> Copy for RouterObject<I, R> {}
-
-impl<I: UserInput, R: Resource + serde::Serialize> Clone for RouterObject<I, R> {
-    fn clone(&self) -> Self {
-        *self
     }
 }
 

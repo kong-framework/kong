@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 krypto = { path = "../krypto/"}
 serde.workspace = true
+serde_json.workspace = true
 chrono.workspace = true

@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 kong = {path = "../../krates/kong"}
+serde_json.workspace = true

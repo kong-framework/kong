@@ -5,6 +5,7 @@
 
 use crate::validate::{Validate, ValidationError};
 use serde::Deserialize;
+use serde_json::json;
 
 /// User input
 pub trait UserInput {
@@ -32,6 +33,24 @@ pub struct AccountCreationInput {
     pub password: String,
 }
 
+impl AccountCreationInput {
+    /// new generic resource
+    pub fn as_json(&self) -> serde_json::Value {
+        json!({
+            "username": self.username,
+            "email": self.email,
+            "password": self.password
+        })
+    }
+
+    /// from json
+    pub fn from_json_str(
+        json_str: String,
+    ) -> Result<AccountCreationInput, serde_json::error::Error> {
+        let a: AccountCreationInput = serde_json::from_str(&json_str)?;
+        Ok(a)
+    }
+}
 impl UserInput for AccountCreationInput {
     fn is_valid(&self) -> Result<(), ValidationError> {
         if !Validate::username(&self.username) {
