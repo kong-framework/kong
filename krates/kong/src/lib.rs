@@ -22,7 +22,7 @@ use konfig::{
 };
 use krypto::kpassport::Kpassport;
 
-/// Kong object
+/// 🔥 Kong object
 pub struct Kong {
     /// Kong database
     pub database: Kollection,

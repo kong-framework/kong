@@ -1,4 +1,4 @@
-//! A resource that can be accessed via http
+//! 🧾 A resource that can be accessed via http
 use serde_json::json;
 use std::fmt;
 

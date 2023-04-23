@@ -1,3 +1,5 @@
+//! 👥 User account management
+
 use crate::inputs::AccountCreationInput;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -79,7 +81,7 @@ pub struct PublicAccount {
 }
 
 impl PublicAccount {
-    /// new generic resource
+    /// convert to json value
     pub fn as_json(&self) -> serde_json::Value {
         json!({
             "username": self.username,
