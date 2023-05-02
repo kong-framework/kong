@@ -6,9 +6,9 @@ pub mod error_response;
 pub mod issue_kpassport;
 
 use crate::Kong;
-use rouille::{Request, Response};
 use kdata::resource::ResourceError;
 use kerror::KError;
+use rouille::{Request, Response};
 use route_recognizer::{Params, Router};
 use std::str::FromStr;
 
@@ -18,6 +18,7 @@ pub trait Kontrol {
     fn address(&self) -> String;
     /// Enpoint method
     fn method(&self) -> Method;
+
     /// Get user input
     fn get_input(&self, request: &Request) -> Option<serde_json::Value> {
         None
