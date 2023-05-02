@@ -80,6 +80,22 @@ pub struct AccountAuthInput {
     pub password: String,
 }
 
+impl AccountAuthInput {
+    /// new generic resource
+    pub fn as_json(&self) -> serde_json::Value {
+        json!({
+            "username": self.username,
+            "password": self.password
+        })
+    }
+
+    /// from json
+    pub fn from_json_str(json_str: String) -> Result<AccountAuthInput, serde_json::error::Error> {
+        let a: AccountAuthInput = serde_json::from_str(&json_str)?;
+        Ok(a)
+    }
+}
+
 impl UserInput for AccountAuthInput {
     fn is_valid(&self) -> Result<(), ValidationError> {
         if !Validate::username(&self.username) {
