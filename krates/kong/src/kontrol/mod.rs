@@ -7,7 +7,6 @@ pub mod issue_kpassport;
 
 use crate::Kong;
 use rouille::{Request, Response};
-pub mod accounts;
 use kdata::resource::ResourceError;
 use kerror::KError;
 use route_recognizer::{Params, Router};
