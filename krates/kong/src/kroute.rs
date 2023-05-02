@@ -16,6 +16,9 @@ pub fn kroute(
     let kong: Mutex<Kong> = Mutex::new(Kong::new());
     let mut router = Router::new();
 
+    // start kong
+    kong.lock().unwrap().start().unwrap();
+
     // prepare kontrollers
     for kontrol in kontrollers {
         router.add(&kontrol.address(), kontrol);
