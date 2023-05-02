@@ -598,6 +598,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kong_kontrollers"
+version = "0.1.0"
+dependencies = [
+ "kong",
+ "rusqlite",
+ "serde",
+]
+
+[[package]]
 name = "krypto"
 version = "0.1.0"
 dependencies = [
