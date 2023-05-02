@@ -93,38 +93,40 @@ impl IssueKpassport {
             Err(_) => ErrorResponse::internal(),
         }
     }
+}
 
-    // TODO: add error handling
-    /// check if user is admin
-    pub fn is_admin(
-        admin_email: &str,
-        kong_database: &mut Kollection,
-        kpassport: Option<Kpassport>,
-    ) -> bool {
-        if let Some(kpassport) = kpassport {
-            // get admin from database
+// TODO: add error handling
+/// check if user is admin
+pub fn is_admin(kong: &Kong) -> bool {
+    if let Some(kpassport) = &kong.kpassport {
+        // get admin from database
+        let admin_email = if let Some(admin_email) = &kong.config.admin_email {
+            admin_email.clone()
+        } else {
+            // admin email not set
+            return false;
+        };
 
-            if let Ok(admin_account) = kong_database.private_get_account_by_email(admin_email) {
-                if let Some(admin_account) = admin_account {
-                    // check if admin account username matches the username is the kpassport
-                    if admin_account.username == kpassport.content.username {
-                        // user is admin
-                        true
-                    } else {
-                        // user is not admin
-                        false
-                    }
+        if let Ok(admin_account) = kong.database.private_get_account_by_email(&admin_email) {
+            if let Some(admin_account) = admin_account {
+                // check if admin account username matches the username is the kpassport
+                if admin_account.username == kpassport.content.username {
+                    // user is admin
+                    true
                 } else {
-                    // Admin account not found, for some reason. Cannot check if user is admin
+                    // user is not admin
                     false
                 }
             } else {
-                // Could not get admin account from database
+                // Admin account not found, for some reason. Cannot check if user is admin
                 false
             }
         } else {
-            // No kpassport found (user not logged in), cannot check if user is admin
+            // Could not get admin account from database
             false
         }
+    } else {
+        // No kpassport found (user not logged in), cannot check if user is admin
+        false
     }
 }
