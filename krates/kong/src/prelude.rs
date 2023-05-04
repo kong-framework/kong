@@ -7,7 +7,6 @@ pub use crate::kroute::kroute;
 pub use crate::Kong;
 pub use kdata;
 pub use kerror::KError;
-pub use kollection::Kollection;
 pub use konfig::Konfig;
 pub use krypto;
 pub use rouille as server;
