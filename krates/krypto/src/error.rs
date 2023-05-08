@@ -1,5 +1,8 @@
+//! Krypto errors
+
 use std::fmt;
 
+/// Krypto errors
 #[derive(Debug)]
 pub enum KryptoError {
     /// Invalid kpassport size
@@ -20,6 +23,10 @@ pub enum KryptoError {
     InvalidKpassportHost,
     /// Invalid kpassport timestamp
     InvalidKpassportTimestamp,
+    /// Password hashing error
+    PasswordHashing,
+    /// Password hash verification
+    PasswordVerifyHash,
 }
 
 impl std::error::Error for KryptoError {}
@@ -48,6 +55,8 @@ impl fmt::Display for KryptoError {
             Self::InvalidKpassport => {
                 write!(f, "Invalid Kpassport")
             }
+            Self::PasswordHashing => write!(f, "Could not hash password"),
+            Self::PasswordVerifyHash => write!(f, "Could not verify password hash"),
         }
     }
 }

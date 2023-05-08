@@ -550,57 +550,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "kdata"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "krypto",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "kerror"
-version = "0.1.0"
-
-[[package]]
-name = "kollection"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "kdata",
- "kerror",
- "rusqlite",
-]
-
-[[package]]
-name = "konfig"
-version = "0.1.0"
-dependencies = [
- "kerror",
- "serde",
- "toml",
-]
-
-[[package]]
 name = "kong"
 version = "0.1.0"
 dependencies = [
- "kdata",
- "kerror",
- "kollection",
- "konfig",
+ "chrono",
  "krypto",
  "rouille",
  "route-recognizer",
  "serde",
  "serde_json",
+ "toml",
 ]
 
 [[package]]
 name = "kong_kontrollers"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "kong",
  "rusqlite",
  "serde",
@@ -614,7 +580,6 @@ dependencies = [
  "blake3",
  "chrono",
  "hex",
- "kerror",
  "scrypt",
 ]
 

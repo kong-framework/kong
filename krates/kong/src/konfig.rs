@@ -1,11 +1,6 @@
-#![doc(html_favicon_url = "https://kwatafana.org/logo.jpeg")]
-#![doc(html_logo_url = "https://kwatafana.org/logo.jpeg")]
-#![warn(missing_docs, unreachable_pub, future_incompatible, rust_2018_idioms)]
 //! server configuration
 
-pub mod defaults;
-
-use kerror::KError;
+use crate::error::KError;
 use serde::Deserialize;
 use std::{env, fs};
 
@@ -19,10 +14,6 @@ pub struct Konfig {
     /// Kong server working directory, path should end with `/`
     /// defaults to ~/kong/
     pub working_directory: Option<String>,
-    /// Set to `true` if you want kong to create a database for accounts
-    /// set to `false` if you don't want kong to create accounts db
-    /// Database is created when `kong` starts up
-    pub accounts: bool,
     /// Name of the authorization session cookie id
     pub auth_cookie_name: String,
     /// Path to static files, if not provided no static files will be served
@@ -31,8 +22,6 @@ pub struct Konfig {
     pub host: String,
     /// Kong secret key
     pub secret_key: String,
-    /// Authentication/Login address (issue kpassport), defaults to `/auth`
-    pub auth_route: Option<String>,
 }
 
 impl Konfig {

@@ -288,6 +288,7 @@ impl Kpassport {
         })
     }
 
+    /// Derive signature from bytes
     pub fn signature_from_bytes(bytes: Vec<u8>) -> Result<Hash, KryptoError> {
         let signature_hex = hex::encode(bytes);
         let signature = Hash::from_hex(signature_hex);

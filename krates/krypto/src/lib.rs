@@ -2,8 +2,16 @@
 //!
 //! `kong` cryptography and security
 //!
+//! ## Security Features
+//!
+//! - No Complexity
+//! - Small code surface
+//!
 //! ## TODO
 //!
+//! - Prevention (eg vault)
+//! - Detection (eg alarms)
+//! - Reaction (eg police)
 //! - 🛡️ Physical Security
 //!   - Machine Identity
 //!   - Secure Boot Stack

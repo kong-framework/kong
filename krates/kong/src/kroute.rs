@@ -1,7 +1,4 @@
-use crate::{
-    kontrol::{error_response::ErrorResponse, issue_kpassport::IssueKpassport, Kontrol, Method},
-    Kong,
-};
+use crate::{error_response::ErrorResponse, Kong, Kontrol, Method};
 
 use krypto::{error::KryptoError, kpassport::Kpassport};
 use route_recognizer::Router;
@@ -13,11 +10,9 @@ pub fn kroute(
     address: &str,
     kontrollers: Vec<Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>>,
 ) -> rouille::Response {
-    let kong: Mutex<Kong> = Mutex::new(Kong::new());
+    let kong: Kong = Default::default();
+    let kong: Mutex<Kong> = Mutex::new(kong);
     let mut router = Router::new();
-
-    // start kong
-    kong.lock().unwrap().start().unwrap();
 
     // prepare kontrollers
     for kontrol in kontrollers {
@@ -28,17 +23,17 @@ pub fn kroute(
         let mut kong = kong.lock().unwrap();
 
         // Check if it is the login route
-        if let Some(route) = &kong.config.auth_route {
-            if &request.url() == route {
-                // Check if login HTTP method is correct
-                if request.method() == "POST" {
-                    let auth_input = IssueKpassport::get_input(request);
-                    return IssueKpassport::handle(&mut kong, auth_input);
-                } else {
-                    return ErrorResponse::not_allowed();
-                }
-            }
-        }
+        // if let Some(route) = &kong.config.auth_route {
+        //     if &request.url() == route {
+        //         // Check if login HTTP method is correct
+        //         if request.method() == "POST" {
+        //             let auth_input = IssueKpassport::get_input(request);
+        //             return IssueKpassport::handle(&mut kong, auth_input);
+        //         } else {
+        //             return ErrorResponse::not_allowed();
+        //         }
+        //     }
+        // }
 
         // Handle static files
         if let Some(path) = &kong.config.static_files_path {
@@ -65,16 +60,11 @@ pub fn kroute(
                 // validate input_json_str
                 if let Ok(input) = route.handler().validate(input_json_str) {
                     kong.input = input;
-                    let resource = route.handler().kontrol(&mut kong);
+                    let response = route.handler().kontrol(&mut kong);
 
                     // check if HTTP method is supported
                     if is_method_supported(request, &expected_method) {
-                        match resource {
-                            Ok(resource) => {
-                                rouille::Response::json(&resource).with_status_code(201)
-                            }
-                            Err(err) => ErrorResponse::map_resource_error(err),
-                        }
+                        response
                     } else {
                         ErrorResponse::not_allowed()
                     }

@@ -3,22 +3,23 @@
 use chrono::prelude::*;
 
 /// The context of a key derivation
-pub struct Context<'a> {
+pub(crate) struct Context<'a> {
     /// Server or application that derives and use the key
-    pub host: &'a str,
+    pub(crate) host: &'a str,
     /// The time when the key is derived
-    pub timestamp: DateTime<Utc>,
+    pub(crate) timestamp: DateTime<Utc>,
 }
 
 impl<'a> Context<'a> {
-    pub fn to_string(&self) -> String {
+    /// Convert context to string
+    pub(crate) fn to_string(&self) -> String {
         format!("{} {} kpassport-token", self.host, self.timestamp)
     }
 }
 
 /// Derive a 32 byte key from specified context and
 /// key material
-pub fn derive_key(context: Context, key_material: &[u8]) -> [u8; 32] {
+pub(crate) fn derive_key(context: Context<'_>, key_material: &[u8]) -> [u8; 32] {
     blake3::derive_key(&context.to_string(), key_material)
 }
 

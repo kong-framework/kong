@@ -58,26 +58,27 @@
 //!
 //!
 
-use kerror::KError;
+use crate::error::KryptoError;
 use scrypt::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Scrypt,
 };
 
 /// Hash a cleartext password using the scrypt hash function
-pub fn hash(cleartext_password: &str) -> Result<String, KError> {
+pub fn hash(cleartext_password: &str) -> Result<String, KryptoError> {
     let cleartext_password_bytes = cleartext_password.as_bytes();
     let salt = SaltString::generate(&mut OsRng);
     let password_hash = Scrypt
         .hash_password(cleartext_password_bytes, &salt)
-        .map_err(|_| KError::PasswordHashing)?
+        .map_err(|_| KryptoError::PasswordHashing)?
         .to_string();
     Ok(password_hash)
 }
 
 /// Check if a scrypt hash matches the password cleartext
-pub fn verify(password_hash: &str, password_cleartext: &str) -> Result<bool, KError> {
-    let parsed_hash = PasswordHash::new(password_hash).map_err(|_| KError::PasswordVerifyHash)?;
+pub fn verify(password_hash: &str, password_cleartext: &str) -> Result<bool, KryptoError> {
+    let parsed_hash =
+        PasswordHash::new(password_hash).map_err(|_| KryptoError::PasswordVerifyHash)?;
     if Scrypt
         .verify_password(password_cleartext.as_bytes(), &parsed_hash)
         .is_ok()

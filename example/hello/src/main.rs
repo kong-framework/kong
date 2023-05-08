@@ -1,7 +1,4 @@
-use kong::prelude::{
-    kdata::resource::{GenericResource, ResourceError},
-    kroute, *,
-};
+use kong::{json, kroute, server, Konfig, Kong, Kontrol, Method};
 
 fn main() {
     let port = Konfig::read_port();
@@ -22,10 +19,8 @@ impl Kontrol for HelloKontroller {
         Method::Get
     }
 
-    fn kontrol(&self, _kong: &Kong) -> Result<serde_json::Value, ResourceError> {
-        let resource = GenericResource {
-            message: "Hello, World".to_string(),
-        };
-        Ok(resource.as_json())
+    fn kontrol(&self, _kong: &Kong) -> server::Response {
+        let res = json!({ "message": "Hello World" });
+        server::Response::json(&res).with_status_code(200)
     }
 }
