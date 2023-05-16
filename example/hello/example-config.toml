@@ -17,5 +17,3 @@ auth_cookie_name = "my_session"
 host = "my-host"
 # Kong secret key
 secret_key = "My super secret key" # Do not use in production
-# Authentication/Login address (issue kpassport), defaults to `/auth`
-# auth_route =  "/auth",
