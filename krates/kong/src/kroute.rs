@@ -1,4 +1,4 @@
-use crate::{error_response::ErrorResponse, Kong, Kontrol, Method};
+use crate::{error_response::ErrorResponse, konfig::Konfig, Kong, Kontrol, Method};
 
 use krypto::{error::KryptoError, kpassport::Kpassport};
 use route_recognizer::Router;
@@ -7,9 +7,11 @@ use std::sync::Mutex;
 
 /// Kong request routing
 pub fn kroute(
-    address: &str,
     kontrollers: Vec<Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>>,
 ) -> rouille::Response {
+    let port = Konfig::read_port();
+    let address = format!("localhost:{}", port);
+
     let kong: Kong = Default::default();
     let kong: Mutex<Kong> = Mutex::new(kong);
     let mut router = Router::new();
@@ -19,21 +21,10 @@ pub fn kroute(
         router.add(&kontrol.address(), kontrol);
     }
 
+    println!("kong node running @ {address}");
+
     rouille::start_server(address, move |request| {
         let mut kong = kong.lock().unwrap();
-
-        // Check if it is the login route
-        // if let Some(route) = &kong.config.auth_route {
-        //     if &request.url() == route {
-        //         // Check if login HTTP method is correct
-        //         if request.method() == "POST" {
-        //             let auth_input = IssueKpassport::get_input(request);
-        //             return IssueKpassport::handle(&mut kong, auth_input);
-        //         } else {
-        //             return ErrorResponse::not_allowed();
-        //         }
-        //     }
-        // }
 
         // Handle static files
         if let Some(path) = &kong.config.static_files_path {

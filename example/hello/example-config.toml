@@ -17,3 +17,7 @@ auth_cookie_name = "my_session"
 host = "my-host"
 # Kong secret key
 secret_key = "My super secret key" # Do not use in production
+# Weather the server should log information to console
+console_log = true
+# Weather the server should log information to log file
+log_file = false

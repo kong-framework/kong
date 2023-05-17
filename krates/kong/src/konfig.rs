@@ -22,6 +22,10 @@ pub struct Konfig {
     pub host: String,
     /// Kong secret key
     pub secret_key: String,
+    /// Weather the server should log information to console
+    pub console_log: bool,
+    /// Weather the server should log information to log file
+    pub log_file: bool,
 }
 
 impl Konfig {

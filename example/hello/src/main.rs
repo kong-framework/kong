@@ -1,22 +1,11 @@
-use kong::{json, kroute, server, Konfig, Kong, Kontrol, Method};
+use kong::{json, kroute, server, Kong, Kontrol, Method};
 
 fn main() {
-    // Read port from configuration file
-    let port = Konfig::read_port();
-    // Setup server address
-    let address = format!("localhost:{}", port);
-
-    println!("kong example running @ {address}");
-
-    // start kong router, kontrolling provided
-    // provided endpoint kontrollers
-    kroute(
-        &address,
-        vec![Box::new(HelloKontroller {
-            address: "/hello".to_string(),
-            method: Method::Get,
-        })],
-    );
+    // start kong router, kontrolling provided endpoint kontrollers
+    kroute(vec![Box::new(HelloKontroller {
+        address: "/hello".to_string(),
+        method: Method::Get,
+    })]);
 }
 
 /// Hello API endpoint controller
