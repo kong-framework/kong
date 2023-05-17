@@ -422,14 +422,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hello"
-version = "0.1.0"
-dependencies = [
- "kong",
- "serde_json",
-]
-
-[[package]]
 name = "hermit-abi"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -560,6 +552,14 @@ dependencies = [
  "serde",
  "serde_json",
  "toml",
+]
+
+[[package]]
+name = "kong_hello_world_example"
+version = "0.1.0"
+dependencies = [
+ "kong",
+ "serde_json",
 ]
 
 [[package]]

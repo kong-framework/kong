@@ -9,7 +9,15 @@
                          secure web node |___/ v0.1.0
 ```
 
-[documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
+`kong` is a web framework that is designed to be secure against common
+web server vulnerabilities.
+
+## Links
+
+- [Source Code](https://kong.kwatafana.org/rust/doc/kong/index.html)
+- [Rust documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
+
+## `kong` example
 
 ``` rust
 use kong::{json, kroute, server, Konfig, Kong, Kontrol, Method};
@@ -55,6 +63,20 @@ impl Kontrol for HelloKontroller {
     }
 }
 ```
+
+## `kong` Roadmap
+
+- [ ] API `0.1.0`
+- [ ] API Refinements `0.2.0`
+- [ ] API Refactor, Tests and documentation `0.3.0`
+- [ ] Core Security `0.4.0`
+- [ ] Core Security Refinements `0.5.0`
+- [ ] Pen-testing `0.6.0`
+- [ ] Performance Enhancements `0.7.0`
+- [ ] In depth Testing, Refactor and Fuzzing `0.8.0`
+- [ ] Pen-testing, Security Audit `0.9.0`
+- [ ] In depth documentation `1.0.0`
+- [ ] Research `1.1.0`
 
 ## Unlicense
 
