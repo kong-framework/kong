@@ -11,7 +11,7 @@ pub fn kroute(
 ) -> rouille::Response {
     let port = Konfig::read_port();
     let address = format!("localhost:{}", port);
-
+    let loggin = Konfig::read_logging();
     let kong: Kong = Default::default();
     let kong: Mutex<Kong> = Mutex::new(kong);
     let mut router = Router::new();
@@ -21,7 +21,13 @@ pub fn kroute(
         router.add(&kontrol.address(), kontrol);
     }
 
-    println!("kong node running @ {address}");
+    if loggin.0 {
+        println!("kong node running @ {address}");
+    }
+
+    if loggin.1 {
+        // TODO: implement file log
+    }
 
     rouille::start_server(address, move |request| {
         let mut kong = kong.lock().unwrap();

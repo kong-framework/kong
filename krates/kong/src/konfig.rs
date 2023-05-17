@@ -68,4 +68,19 @@ impl Konfig {
             None => panic!("Path to config file is not provided!"),
         }
     }
+
+    /// read loggin
+    pub fn read_logging() -> (bool, bool) {
+        let arg = env::args().nth(1);
+        match arg {
+            Some(a) => {
+                let toml_str = fs::read_to_string(a).unwrap();
+                let config: Konfig = toml::from_str(&toml_str).unwrap();
+                let console = config.console_log;
+                let file = config.log_file;
+                (console, file)
+            }
+            None => panic!("Path to config file is not provided!"),
+        }
+    }
 }
