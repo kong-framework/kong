@@ -38,13 +38,15 @@ impl Log {
     }
 
     fn log_to_file(message: &str) -> Result<(), KError> {
-        let file = if let Some(dir) = Konfig::read_working_dir() {
-            format!("{dir}LOG")
-        } else {
-            return Err(KError::LogFile);
-        };
+        let working_dir = Konfig::read_working_dir();
+        let working_dir_path = std::path::Path::new(&working_dir);
+        let log_file = std::path::Path::new(defaults::LOG_FILE);
+        let log_file_path = working_dir_path.join(log_file);
 
-        let file = OpenOptions::new().write(true).append(true).open(file);
+        let file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(log_file_path);
 
         if let Ok(mut file) = file {
             let now = Utc::now();
