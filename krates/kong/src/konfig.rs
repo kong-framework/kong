@@ -12,21 +12,23 @@ pub struct Konfig {
     /// Admin email address
     pub admin_email: Option<String>,
     /// Kong server working directory, path should end with `/`
-    /// defaults to ~/kong/
+    /// __defaults to kong/__
     pub working_directory: Option<String>,
     /// Name of the authorization session cookie id
     pub auth_cookie_name: String,
-    /// Path to static files, if not provided no static files will be served
+    /// Path to static files, __if not provided no static files will be served__
     pub static_files_path: Option<String>,
     /// Node hostname
     pub host: String,
     /// Kong secret key
     pub secret_key: String,
-    /// Weather the server should log information to console
-    pub console_log: bool,
+    /// Weather the server should log information to console.
+    /// Console logging is __enabled__ by default.
+    pub console_log: Option<bool>,
     /// Weather the server should log information to file, the file is
-    /// stored in the working directory as LOG
-    pub log_file: bool,
+    /// stored in the working directory as LOG.
+    /// Logging to the LOG file is __disabled__ by default
+    pub log_file: Option<bool>,
 }
 
 impl Konfig {
@@ -71,7 +73,7 @@ impl Konfig {
     }
 
     /// read loggin
-    pub fn read_logging() -> (bool, bool) {
+    pub fn read_logging() -> (Option<bool>, Option<bool>) {
         let arg = env::args().nth(1);
         match arg {
             Some(a) => {

@@ -14,14 +14,18 @@ impl Log {
     pub fn log(message: &str) -> Result<(), KError> {
         let logging = Konfig::read_logging();
 
-        if logging.0 {
-            // Log to console
-            Log::log_to_console(message);
+        if let Some(console_logging) = logging.0 {
+            if console_logging {
+                // Log to console
+                Log::log_to_console(message);
+            }
         }
 
-        if logging.1 {
-            // Log to file
-            Log::log_to_file(message)?;
+        if let Some(file_logging) = logging.1 {
+            if file_logging {
+                // Log to file
+                Log::log_to_file(message)?;
+            }
         }
 
         Ok(())
