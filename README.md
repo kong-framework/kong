@@ -12,12 +12,12 @@
 `kong` is a web framework that is designed to be secure against common
 web server vulnerabilities.
 
-## Links
+## 🖇️ Links
 
 - [Source Code](https://kong.kwatafana.org/rust/doc/kong/index.html)
 - [Rust documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
 
-## `kong` example
+## ✨ `kong` example
 
 ``` rust
 use kong::{json, kroute, server, Kong, Kontrol, Method};
@@ -53,13 +53,13 @@ impl Kontrol for HelloKontroller {
 }
 ```
 
-## Features
+## ⭐ Features
 
 - [x] __Logging__
   - [x] Console logging
   - [x] File logging
   
-## `kong` Roadmap
+## 🗺️ `kong` Roadmap
 
 - [ ] API `0.1.0`
 - [ ] API Refinements `0.2.0`
@@ -73,7 +73,7 @@ impl Kontrol for HelloKontroller {
 - [ ] In depth documentation `1.0.0`
 - [ ] Research `1.1.0`
 
-## Unlicense
+## 🎫 Unlicense
 
 Written and placed in the public domain by Jackson G. Kaindume.
 
@@ -87,4 +87,4 @@ repository.
 
 ---
 
-<https://kong.kwatafana.org/>
+🌐 <https://kong.kwatafana.org/>  | 📧 <cy6erlion@protonmail.com>
