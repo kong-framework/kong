@@ -61,15 +61,20 @@ impl Konfig {
     }
 
     /// Read working directory from config file
-    pub fn read_working_dir() -> Option<String> {
+    pub fn read_working_dir() -> String {
         let arg = env::args().nth(1);
         match arg {
             Some(a) => {
                 let toml_str = fs::read_to_string(a).unwrap();
                 let config: Konfig = toml::from_str(&toml_str).unwrap();
-                config.working_directory
+
+                if let Some(working_directory) = config.working_directory {
+                    working_directory
+                } else {
+                    defaults::WORKING_DIRECTORY.to_string()
+                }
             }
-            None => Some("kong/".to_string()),
+            None => defaults::WORKING_DIRECTORY.to_string(),
         }
     }
 
