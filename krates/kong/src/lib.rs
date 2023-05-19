@@ -17,6 +17,7 @@ mod error_response;
 pub mod inputs;
 mod konfig;
 mod kroute;
+pub mod log;
 pub mod validate;
 
 pub use error::KError;

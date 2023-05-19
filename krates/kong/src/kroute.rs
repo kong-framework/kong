@@ -1,5 +1,6 @@
 use crate::{error_response::ErrorResponse, konfig::Konfig, Kong, Kontrol, Method};
 
+use crate::log::Log;
 use krypto::{error::KryptoError, kpassport::Kpassport};
 use route_recognizer::Router;
 use std::str::FromStr;
@@ -11,7 +12,6 @@ pub fn kroute(
 ) -> rouille::Response {
     let port = Konfig::read_port();
     let address = format!("localhost:{}", port);
-    let loggin = Konfig::read_logging();
     let kong: Kong = Default::default();
     let kong: Mutex<Kong> = Mutex::new(kong);
     let mut router = Router::new();
@@ -21,16 +21,13 @@ pub fn kroute(
         router.add(&kontrol.address(), kontrol);
     }
 
-    if loggin.0 {
-        println!("kong node running @ {address}");
-    }
-
-    if loggin.1 {
-        // TODO: implement file log
-    }
+    Log::log(&format!("kong node started @ {address}")).expect("Error while logging");
 
     rouille::start_server(address, move |request| {
         let mut kong = kong.lock().unwrap();
+        let request_log = format!("{} {}", request.method(), request.url());
+
+        Log::log(&request_log).expect("Error while logging");
 
         // Handle static files
         if let Some(path) = &kong.config.static_files_path {

@@ -24,7 +24,8 @@ pub struct Konfig {
     pub secret_key: String,
     /// Weather the server should log information to console
     pub console_log: bool,
-    /// Weather the server should log information to log file
+    /// Weather the server should log information to file, the file is
+    /// stored in the working directory as LOG
     pub log_file: bool,
 }
 
@@ -65,7 +66,7 @@ impl Konfig {
                 let config: Konfig = toml::from_str(&toml_str).unwrap();
                 config.working_directory
             }
-            None => panic!("Path to config file is not provided!"),
+            None => Some("kong/".to_string()),
         }
     }
 

@@ -53,6 +53,12 @@ impl Kontrol for HelloKontroller {
 }
 ```
 
+## Features
+
+- [x] __Logging__
+  - [x] Console logging
+  - [x] File logging
+  
 ## `kong` Roadmap
 
 - [ ] API `0.1.0`

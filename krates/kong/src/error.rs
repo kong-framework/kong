@@ -9,6 +9,8 @@ pub enum KError {
     UrlParsing,
     /// Invalid HTTP Method
     InvalidHttpMethod,
+    /// Log file error
+    LogFile,
 }
 
 impl std::error::Error for KError {}
@@ -19,6 +21,7 @@ impl fmt::Display for KError {
             Self::Config => write!(f, "Could not read config file"),
             Self::UrlParsing => write!(f, "Could not parse error"),
             Self::InvalidHttpMethod => write!(f, "Invalid HTTP method"),
+            Self::LogFile => write!(f, "Log file error"),
         }
     }
 }
