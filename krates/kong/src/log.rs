@@ -1,5 +1,6 @@
 //! Kong node logging
 
+use crate::defaults;
 use crate::konfig::Konfig;
 use crate::KError;
 use chrono::Utc;

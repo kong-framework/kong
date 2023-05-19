@@ -1,5 +1,6 @@
 //! server configuration
 
+use crate::defaults;
 use crate::error::KError;
 use serde::Deserialize;
 use std::{env, fs};
