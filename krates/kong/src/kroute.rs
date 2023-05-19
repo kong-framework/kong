@@ -1,6 +1,7 @@
-use crate::{error_response::ErrorResponse, konfig::Konfig, Kong, Kontrol, Method};
+use crate::{error_response::ErrorResponse, konfig::Konfig, Kong, Kontrol};
 
 use crate::log::Log;
+use crate::KError;
 use krypto::{error::KryptoError, kpassport::Kpassport};
 use route_recognizer::Router;
 use std::str::FromStr;
@@ -54,7 +55,7 @@ pub fn kroute(
                 // validate input_json_str
                 if let Ok(input) = route.handler().validate(input_json_str) {
                     kong.input = input;
-                    let response = route.handler().kontrol(&mut kong);
+                    let response = route.handler().kontrol(&kong);
 
                     // check if HTTP method is supported
                     if is_method_supported(request, &expected_method) {
@@ -128,5 +129,39 @@ fn get_cookie_token(
     } else {
         // Cookie not found
         Err(KryptoError::InvalidKpassport)
+    }
+}
+
+#[derive(Clone, PartialEq)]
+/// HTTP methods
+pub enum Method {
+    /// HTTP GET method
+    Get,
+    /// HTTP POST method
+    Post,
+    /// HTTP PUT method
+    Put,
+    /// HTTP HEAD method
+    Head,
+    /// HTTP DELETE method
+    Delete,
+    /// HTTP OPTIONS method
+    Options,
+}
+
+impl Copy for Method {}
+impl FromStr for Method {
+    type Err = KError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "GET" => Ok(Method::Get),
+            "POST" => Ok(Method::Post),
+            "PUT" => Ok(Method::Put),
+            "HEAD" => Ok(Method::Head),
+            "DELETE" => Ok(Method::Delete),
+            "OPTIONS" => Ok(Method::Options),
+            _ => Err(KError::InvalidHttpMethod),
+        }
     }
 }
