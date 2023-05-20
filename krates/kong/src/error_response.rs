@@ -1,6 +1,8 @@
+//! 🏴 `kong` error response
+
 use serde::Serialize;
 
-/// API request handling error
+/// 🏴 API error response
 #[derive(Serialize)]
 pub struct ErrorResponse {
     /// Error message

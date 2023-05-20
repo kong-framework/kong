@@ -1,11 +1,11 @@
-//! server configuration
+//! 🎛️ `kong` server configuration
 
 use crate::defaults;
 use crate::error::KError;
 use serde::Deserialize;
 use std::{env, fs};
 
-/// Server configuration
+/// 🎛️ Server configuration
 #[derive(Deserialize)]
 pub struct Konfig {
     /// Port to access the server

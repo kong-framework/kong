@@ -1,7 +1,8 @@
+//! 🚨 `kong` error management
 use std::fmt;
 
 #[derive(Debug)]
-/// Kong errors
+/// 🚨 `kong` error management
 pub enum KError {
     /// Configuration error
     Config,

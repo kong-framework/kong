@@ -1,3 +1,5 @@
+//! 🌀 `kong` request router
+
 use crate::{error_response::ErrorResponse, konfig::Konfig, Kong, Kontrol};
 
 use crate::log::Log;
@@ -7,7 +9,7 @@ use route_recognizer::Router;
 use std::str::FromStr;
 use std::sync::Mutex;
 
-/// Kong request routing
+/// 🌀 `kong` request routing
 pub fn kroute(
     kontrollers: Vec<Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>>,
 ) -> rouille::Response {
@@ -133,7 +135,7 @@ fn get_cookie_token(
 }
 
 #[derive(Clone, PartialEq)]
-/// HTTP methods
+/// 🚥 HTTP methods
 pub enum Method {
     /// HTTP GET method
     Get,

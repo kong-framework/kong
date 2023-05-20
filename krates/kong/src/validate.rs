@@ -1,11 +1,11 @@
-//! 🔬 User input validation
+//! 🔬 `kong` user input validation
 //!
 //! User input data validation
 //!
 //! ## References
 //! - <https://beesbuzz.biz/code/439-Falsehoods-programmers-believe-about-email>
 
-/// User input validator
+/// 🔬 User input validator
 pub struct Validate;
 
 impl Validate {
@@ -98,14 +98,6 @@ impl fmt::Display for ValidationError {
             ValidationError::Password => write!(f, "Invalid password"),
         }
     }
-}
-
-/// Information about the running node
-#[cfg(feature = "node_information")]
-#[derive(Deserialize, Serialize)]
-pub struct NodeInfo {
-    /// Version of kong that is running on the node
-    pub version: String,
 }
 
 #[cfg(test)]

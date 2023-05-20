@@ -4,7 +4,7 @@ use crate::{KError, Kong, Method};
 use rouille::{Request, Response};
 use route_recognizer::{Params, Router};
 
-/// API Enpoint kontrollers
+/// 🎮 API Enpoint kontrollers
 pub trait Kontrol {
     /// Endpoint address
     fn address(&self) -> String;

@@ -1,4 +1,4 @@
-//! Kong node logging
+//! 📇 `kong` node logging
 
 use crate::defaults;
 use crate::konfig::Konfig;
@@ -7,7 +7,7 @@ use chrono::Utc;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 
-/// Kinds of logging
+/// 📇 Logging management
 pub struct Log;
 
 impl Log {

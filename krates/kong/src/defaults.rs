@@ -1,4 +1,4 @@
-//! Kong default, constant values
+//! 🧮 `kong` default, constant values
 
 /// Kong working directory
 pub const WORKING_DIRECTORY: &str = "kong/";
