@@ -28,9 +28,6 @@ pub fn kroute(
 
     rouille::start_server(address, move |request| {
         let mut kong = kong.lock().unwrap();
-        let request_log = format!("{} {}", request.method(), request.url());
-
-        Log::log(&request_log).expect("Error while logging");
 
         // Handle static files
         if let Some(path) = &kong.config.static_files_path {
@@ -54,19 +51,19 @@ pub fn kroute(
                 let expected_method = route.handler().method();
                 let input_json_str = route.handler().get_input(request);
 
-                // validate input_json_str
-                if let Ok(input) = route.handler().validate(input_json_str) {
-                    kong.input = input;
-                    let response = route.handler().kontrol(&kong);
-
-                    // check if HTTP method is supported
-                    if is_method_supported(request, &expected_method) {
+                // check if HTTP method is supported
+                if is_method_supported(request, &expected_method) {
+                    // validate input_json_str
+                    if let Ok(input) = route.handler().validate(input_json_str) {
+                        kong.input = input;
+                        let response = route.handler().kontrol(&kong);
+                        log_request(&request, &response);
                         response
                     } else {
-                        ErrorResponse::not_allowed()
+                        ErrorResponse::bad_request()
                     }
                 } else {
-                    ErrorResponse::bad_request()
+                    ErrorResponse::not_allowed()
                 }
             }
             Err(_) => ErrorResponse::not_found(),
@@ -132,6 +129,17 @@ fn get_cookie_token(
         // Cookie not found
         Err(KryptoError::InvalidKpassport)
     }
+}
+
+/// Log request
+fn log_request(request: &rouille::Request, response: &rouille::Response) {
+    let log = format!(
+        "{} {} = {}",
+        request.method(),
+        request.url(),
+        response.status_code
+    );
+    Log::log(&log).expect("Error while logging");
 }
 
 #[derive(Clone, PartialEq)]
