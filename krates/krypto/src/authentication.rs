@@ -56,14 +56,16 @@ use std::borrow::Cow;
 #[derive(Clone)]
 /// Kong authentication and authorization management
 pub enum Auth {
+    /// Bearer token authentication
     BearerToken(String),
+    /// Cookie token authentication
     Cookie(String),
 }
 
 impl Auth {
     /// Detect if the type of authentication used (cookie based or bearer token based)
     /// from the requests headers
-    pub fn detect_auth_type(auth_headers: AuthHeaders) -> Result<Auth, KryptoError> {
+    pub fn detect_auth_type(auth_headers: AuthHeaders<'_>) -> Result<Auth, KryptoError> {
         // detect cookie based auth
         if let Some(kpass) = auth_headers.cookie {
             return Ok(Auth::Cookie(kpass.to_string()));
@@ -156,9 +158,9 @@ impl Auth {
 /// HTTP authentication methods
 pub struct AuthHeaders<'a> {
     /// Cookie based authentication
-    cookie: Option<&'a str>,
+    pub cookie: Option<&'a str>,
     /// Bearer token based authentication
-    bearer_token: Option<&'a str>,
+    pub bearer_token: Option<&'a str>,
 }
 
 #[cfg(test)]

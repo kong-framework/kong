@@ -1,5 +1,5 @@
 [package]
-name = "hello"
+name = "kong_hello_world_example"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 kong = {path = "../../krates/kong"}
+serde_json.workspace = true

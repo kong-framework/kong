@@ -1,114 +1,79 @@
 ``` text
-                              )                 
-                           ( /(          (  (   
-                            )\())(   (    )\))(  
-                           ((_)\ )\  )\ )((_))\  
-                           | |(_|(_)_(_/( (()(_) 
-                           | / / _ \ ' \)) _` |  
-                           |_\_\___/_||_|\__, |  
+                              )
+                           ( /(          (  (
+                            )\())(   (    )\))(
+                           ((_)\ )\  )\ )((_))\
+                           | |(_|(_)_(_/( (()(_)
+                           | / / _ \ ' \)) _` |
+                           |_\_\___/_||_|\__, |
                          secure web node |___/ v0.1.0
 ```
 
-[documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
+`kong` is a web framework that is designed to be secure against common
+web server vulnerabilities.
 
-## Features
+## 🖇️ Links
 
-- [ ] Confidentiality
-- [ ] Integrity
-- [ ] Availability
-- [ ] Database Management
-- [ ] Session Management
-- [ ] HTTP+JSON API
-- [ ] Optional Federation
-- [ ] Built in HTTP server
-- [ ] Account Management
+- [Source Code](https://kong.kwatafana.org/rust/doc/kong/index.html)
+- [Rust documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
 
-
-## Usage
+## ✨ `kong` example
 
 ``` rust
-use kong::prelude::*;
-use std::sync::Mutex;
+use kong::{json, kroute, server, Kong, Kontrol, Method};
 
-/// Handle request
-fn welcome(
-    _kong: &mut Kong<kdata::inputs::NoInput>,
-    _input: Option<kdata::inputs::NoInput>,
-) -> server::Response {
-    server::Response::text("Welcome!")
+fn main() {
+    // start kong router, kontrolling provided endpoint kontrollers
+    kroute(vec![Box::new(HelloKontroller {
+        address: "/hello".to_string(),
+        method: Method::Get,
+    })]);
 }
 
-/// Handle request
-fn say_hello(
-    _kong: &mut Kong<kdata::inputs::NoInput>,
-    _input: Option<kdata::inputs::NoInput>,
-) -> server::Response {
-    server::Response::text("Hello; world!")
+/// Hello API endpoint controller
+struct HelloKontroller {
+    /// Endpoint address
+    address: String,
+    /// Endpoint HTTP method
+    method: Method,
 }
+impl Kontrol for HelloKontroller {
+    fn address(&self) -> String {
+        self.address.clone()
+    }
 
-fn say_bye(
-    _kong: &mut Kong<kdata::inputs::NoInput>,
-    _input: Option<kdata::inputs::NoInput>,
-) -> server::Response {
-    server::Response::text("bye bye!")
-}
+    fn method(&self) -> Method {
+        self.method
+    }
 
-fn main() -> Result<(), KError> {
-    let welcome_kontrol: Kontrol<kdata::inputs::NoInput> = Kontrol {
-        get_input: None,
-        validate: None,
-        kontrol: welcome,
-    };
-
-    let hello_kontrol: Kontrol<kdata::inputs::NoInput> = Kontrol {
-        get_input: None,
-        validate: None,
-        kontrol: say_hello,
-    };
-
-    let bye_kontrol: Kontrol<kdata::inputs::NoInput> = Kontrol {
-        get_input: None,
-        validate: None,
-        kontrol: say_bye,
-    };
-
-    let welcome_kontroller = Kontroller {
-        address: "/",
-        kontrol: welcome_kontrol,
-        method: Method::Get,
-    };
-
-    let hello_kontroller = Kontroller {
-        address: "/hello",
-        kontrol: hello_kontrol,
-        method: Method::Get,
-    };
-
-    let bye_kontroller = Kontroller {
-        address: "/bye",
-        kontrol: bye_kontrol,
-        method: Method::Get,
-    };
-
-    let kong: Mutex<Kong<_>> = Mutex::new(Kong::new(vec![
-        welcome_kontroller,
-        hello_kontroller,
-        bye_kontroller,
-    ]));
-    kong.lock().unwrap().database.connect()?;
-
-    let port = Konfig::read_port();
-    let address = format!("localhost:{}", port);
-
-    println!("kong example running @ {address}");
-    server::start_server(address, move |request| {
-        let mut kong = kong.lock().unwrap();
-        Kroute::kroute(&mut kong, request)
-    });
+    fn kontrol(&self, _kong: &Kong) -> server::Response {
+        let res = json!({ "message": "Hello World" });
+        server::Response::json(&res).with_status_code(200)
+    }
 }
 ```
 
-## Unlicense
+## ⭐ Features
+
+- [x] __Logging__
+  - [x] Console logging
+  - [x] File logging
+  
+## 🗺️ `kong` Roadmap
+
+- [ ] API `0.1.0`
+- [ ] API Refinements `0.2.0`
+- [ ] API Refactor, Tests and documentation `0.3.0`
+- [ ] Core Security `0.4.0`
+- [ ] Core Security Refinements `0.5.0`
+- [ ] Pen-testing `0.6.0`
+- [ ] Performance Enhancements `0.7.0`
+- [ ] In depth Testing, Refactor and Fuzzing `0.8.0`
+- [ ] Pen-testing, Security Audit `0.9.0`
+- [ ] In depth documentation `1.0.0`
+- [ ] Research `1.1.0`
+
+## 🎫 Unlicense
 
 Written and placed in the public domain by Jackson G. Kaindume.
 
@@ -122,4 +87,4 @@ repository.
 
 ---
 
-<https://kong.kwatafana.org/>
+🌐 <https://kong.kwatafana.org/>  | 📧 <cy6erlion@protonmail.com>

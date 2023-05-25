@@ -12,70 +12,97 @@
 #![doc(html_logo_url = "https://kwatafana.org/logo.jpeg")]
 #![warn(missing_docs, unreachable_pub, future_incompatible, rust_2018_idioms)]
 
+mod defaults;
+mod error;
+mod error_response;
+pub mod inputs;
+mod konfig;
 mod kontrol;
 mod kroute;
-pub mod prelude;
+pub mod log;
+pub mod validate;
 
-use kdata::inputs::UserInput;
-use kollection::Kollection;
-use konfig::Konfig;
-use kontrol::{Kontrol, Kontroller, Method};
-use route_recognizer::Router;
+pub use error::KError;
+pub use error_response::ErrorResponse;
+pub use konfig::Konfig;
+pub use kontrol::Kontrol;
+pub use kroute::{kroute, Method};
+pub use krypto;
+pub use rouille as server;
+pub use serde_json::{
+    error::Error as JsonError, from_str as json_from_str, json, Value as JsonValue,
+};
 
-/// Kong object
-pub struct Kong<I: UserInput> {
-    /// Kong database
-    pub database: Kollection,
+use krypto::kpassport::Kpassport;
+use std::fs::File;
+
+/// 🔥 Kong object
+pub struct Kong {
     /// Kong configuration
     pub config: Konfig,
-    /// Kong router
-    pub router: Router<RouterObject<I>>,
+    /// Request authentication + authorization token
+    pub kpassport: Option<Kpassport>,
+    /// Validated user input
+    pub input: Option<serde_json::Value>,
 }
 
-impl<I: UserInput> Kong<I> {
-    /// Create new kong instance
-    pub fn new<'a>(kontrollers: Vec<Kontroller<'a, I>>) -> Self {
-        let config = Konfig::read().expect("Could not read configuration file.");
-        let admin_db_path = if let Some(path) = &config.admin_accounts_database {
-            path.clone()
-        } else {
-            "databases/ADMINS.sqlite".to_string()
-        };
+impl Kong {
+    /// Initialize kong, by creating the working directory if it does
+    /// not exist and it content if it does not exist (for example the
+    /// LOG file)
+    fn init(config: &Konfig) {
+        Kong::create_working_directory();
+        Kong::create_log_file(config);
+    }
 
-        let database = Kollection::new(&admin_db_path);
-        let mut router = Router::new();
+    /// Create working dirctory if it does not already exist
+    fn create_working_directory() {
+        // Get path to working directory
+        let working_dir = Konfig::read_working_dir();
+        let working_dir = std::path::Path::new(&working_dir);
 
-        for kontroller in &kontrollers {
-            let router_object = RouterObject {
-                kontrol: kontroller.kontrol.clone(),
-                method: kontroller.method,
-            };
-
-            router.add(kontroller.address, router_object);
+        if !std::path::Path::exists(working_dir) {
+            // create working directory
+            // XXX: Note that using unwrap() here is safe, because
+            // this function is a called a start up during the
+            // initialization phase of kong.
+            std::fs::create_dir(working_dir).unwrap()
         }
+    }
+
+    /// Create log file if file logging is enabled and the LOG
+    /// file does not yet exist.
+    fn create_log_file(config: &Konfig) {
+        //let logging = config.log_file
+        if let Some(file_logging) = config.log_file {
+            if file_logging {
+                let working_dir = Konfig::read_working_dir();
+                let working_dir_path = std::path::Path::new(&working_dir);
+                let log_file = std::path::Path::new(defaults::LOG_FILE);
+                let log_file_path = working_dir_path.join(log_file);
+
+                if !std::path::Path::exists(&log_file_path) {
+                    // create log file in the working directory
+                    // XXX: Note that using unwrap() here is safe, because
+                    // this function is a called a start up during the
+                    // initialization phase of kong.
+                    File::create(log_file_path).unwrap();
+                }
+            }
+        }
+    }
+}
+impl Default for Kong {
+    /// Create new kong instance
+    fn default() -> Self {
+        let config = Konfig::read().expect("Could not read configuration file.");
+
+        Kong::init(&config);
 
         Kong {
-            database,
             config,
-            router,
+            kpassport: None,
+            input: None,
         }
-    }
-    /// Start up runtime
-    pub fn start(&mut self) -> Result<(), kerror::KError> {
-        self.database.connect()
-    }
-}
-
-pub struct RouterObject<I: UserInput> {
-    kontrol: Kontrol<I>,
-    // TODO: the array length should be the number of http methods
-    method: Method,
-}
-
-impl<I: UserInput> Copy for RouterObject<I> {}
-
-impl<I: UserInput> Clone for RouterObject<I> {
-    fn clone(&self) -> Self {
-        *self
     }
 }

@@ -2,8 +2,16 @@
 //!
 //! `kong` cryptography and security
 //!
+//! ## Security Features
+//!
+//! - No Complexity
+//! - Small code surface
+//!
 //! ## TODO
 //!
+//! - Prevention (eg vault)
+//! - Detection (eg alarms)
+//! - Reaction (eg police)
 //! - 🛡️ Physical Security
 //!   - Machine Identity
 //!   - Secure Boot Stack
@@ -24,7 +32,7 @@
 
 pub mod authentication;
 pub mod defaults;
-mod error;
+pub mod error;
 mod key_derivation;
 pub mod kpassport;
 pub mod password;

@@ -1,10 +1,11 @@
-//! # validate
+//! 🔬 `kong` user input validation
 //!
 //! User input data validation
 //!
 //! ## References
 //! - <https://beesbuzz.biz/code/439-Falsehoods-programmers-believe-about-email>
 
+/// 🔬 User input validator
 pub struct Validate;
 
 impl Validate {
@@ -74,17 +75,22 @@ impl Validate {
 use std::fmt;
 
 #[derive(Debug)]
+/// Validation error
 pub enum ValidationError {
+    /// Generic validation error
     Generic,
+    /// Username validation error
     Username,
+    /// Email validation error
     Email,
+    /// Password validation error
     Password,
 }
 
 impl std::error::Error for ValidationError {}
 
 impl fmt::Display for ValidationError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ValidationError::Generic => write!(f, "General input error"),
             ValidationError::Username => write!(f, "Invalid username"),
@@ -92,14 +98,6 @@ impl fmt::Display for ValidationError {
             ValidationError::Password => write!(f, "Invalid password"),
         }
     }
-}
-
-/// Information about the running node
-#[cfg(feature = "node_information")]
-#[derive(Deserialize, Serialize)]
-pub struct NodeInfo {
-    /// Version of kong that is running on the node
-    pub version: String,
 }
 
 #[cfg(test)]

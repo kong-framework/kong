@@ -119,11 +119,11 @@ impl Content {
     fn from_bytes(bytes: Vec<u8>) -> Result<Self, KryptoError> {
         let username = Content::get_username(bytes.clone())?;
         let host = Content::get_host(bytes.clone())?;
-        let timestamp = Content::get_timestamp(bytes.clone())?;
+        let timestamp = Content::get_timestamp(bytes)?;
 
         Ok(Content {
-            username,
             host,
+            username,
             timestamp,
         })
     }
@@ -203,7 +203,7 @@ pub struct Kpassport {
 
 impl Kpassport {
     /// Generates a new __unsigned__ `kpassport`
-    pub fn new_unsigned(host: &str, username: &str) -> Result<Kpassport, KryptoError> {
+    pub fn new_unsigned(username: &str, host: &str) -> Result<Kpassport, KryptoError> {
         if username.len() > USERNAME_LENGTH_LIMIT {
             return Err(KryptoError::KpassportSize);
         }
@@ -213,8 +213,8 @@ impl Kpassport {
         }
 
         let content = Content {
-            host: host.to_string(),
             username: username.to_string(),
+            host: host.to_string(),
             timestamp: Utc::now(),
         };
 
@@ -288,6 +288,7 @@ impl Kpassport {
         })
     }
 
+    /// Derive signature from bytes
     pub fn signature_from_bytes(bytes: Vec<u8>) -> Result<Hash, KryptoError> {
         let signature_hex = hex::encode(bytes);
         let signature = Hash::from_hex(signature_hex);
@@ -568,5 +569,9 @@ mod test {
         assert_eq!(kpassport.content, derived_kpassport.content);
         assert_eq!(kpassport.signature, derived_kpassport.signature);
         assert_eq!(kpassport, derived_kpassport);
+        assert_eq!(
+            kpassport.content.username,
+            derived_kpassport.content.username
+        );
     }
 }
