@@ -39,6 +39,7 @@ pub fn kroute(
 
         // check request url
         let recognized_route = router.recognize(&request.url());
+        let response;
 
         match recognized_route {
             Ok(route) => {
@@ -56,18 +57,19 @@ pub fn kroute(
                     // validate input_json_str
                     if let Ok(input) = route.handler().validate(input_json_str) {
                         kong.input = input;
-                        let response = route.handler().kontrol(&kong);
-                        log_request(&request, &response);
-                        response
+                        response = route.handler().kontrol(&kong);
                     } else {
-                        ErrorResponse::bad_request()
+                        response = ErrorResponse::bad_request();
                     }
                 } else {
-                    ErrorResponse::not_allowed()
+                    response = ErrorResponse::not_allowed();
                 }
             }
-            Err(_) => ErrorResponse::not_found(),
-        }
+            Err(_) => response = ErrorResponse::not_found(),
+        };
+
+        log_request(request, response.status_code);
+        response
     })
 }
 
@@ -132,13 +134,8 @@ fn get_cookie_token(
 }
 
 /// Log request
-fn log_request(request: &rouille::Request, response: &rouille::Response) {
-    let log = format!(
-        "{} {} = {}",
-        request.method(),
-        request.url(),
-        response.status_code
-    );
+fn log_request(request: &rouille::Request, status_code: u16) {
+    let log = format!("{} {} = {}", request.method(), request.url(), status_code);
     Log::log(&log).expect("Error while logging");
 }
 
