@@ -4,6 +4,7 @@ use crate::{error_response::ErrorResponse, konfig::Konfig, Kong, Kontrol};
 
 use crate::log::Log;
 use crate::KError;
+use core::fmt;
 use krypto::{error::KryptoError, kpassport::Kpassport};
 use route_recognizer::Router;
 use std::str::FromStr;
@@ -20,8 +21,9 @@ pub fn kroute(
     let mut router = Router::new();
 
     // prepare kontrollers
-    for kontrol in kontrollers {
-        router.add(&kontrol.address(), kontrol);
+    for kontroller in kontrollers {
+        let kontroller_id = format!("{}{}", kontroller.address(), kontroller.method());
+        router.add(&kontroller_id, kontroller);
     }
 
     Log::log(&format!("kong node started @ {address}")).expect("Error while logging");
@@ -33,44 +35,57 @@ pub fn kroute(
         if let Some(path) = &kong.config.static_files_path {
             let response = rouille::match_assets(request, &path);
             if response.is_success() {
+                log_request(request, response.status_code);
                 return response;
             }
         }
 
-        // check request url
-        let recognized_route = router.recognize(&request.url());
-        let response;
-
-        match recognized_route {
-            Ok(route) => {
-                if let Ok(kpassport) = get_valid_auth_token(&kong, request) {
-                    kong.kpassport = Some(kpassport);
-                } else {
-                    kong.kpassport = None
-                };
-
-                let expected_method = route.handler().method();
-                let input_json_str = route.handler().get_input(request);
-
-                // check if HTTP method is supported
-                if is_method_supported(request, &expected_method) {
-                    // validate input_json_str
-                    if let Ok(input) = route.handler().validate(input_json_str) {
-                        kong.input = input;
-                        response = route.handler().kontrol(&kong);
-                    } else {
-                        response = ErrorResponse::bad_request();
-                    }
-                } else {
-                    response = ErrorResponse::not_allowed();
-                }
-            }
-            Err(_) => response = ErrorResponse::not_found(),
-        };
-
+        let response = filter(request, &router, &mut kong);
         log_request(request, response.status_code);
         response
     })
+}
+
+// filter route
+fn filter(
+    request: &rouille::Request,
+    router: &Router<Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>>,
+    kong: &mut Kong,
+) -> rouille::Response {
+    // check request url
+    let kontroller_id = format!("{}{}", request.url(), request.method());
+    let recognized_route = router.recognize(&kontroller_id);
+
+    match recognized_route {
+        Ok(route) => {
+            // get a valid kpassport token
+            if let Ok(kpassport) = get_valid_auth_token(&kong, request) {
+                kong.kpassport = Some(kpassport);
+            } else {
+                kong.kpassport = None
+            };
+
+            let expected_method = route.handler().method();
+
+            // check if HTTP method is supported
+            if is_method_supported(request, &expected_method) {
+                let input_json_str = route.handler().get_input(request);
+
+                // validate input_json_str
+                if let Ok(input) = route.handler().validate(input_json_str) {
+                    kong.input = input;
+
+                    // kontrol
+                    route.handler().kontrol(kong)
+                } else {
+                    ErrorResponse::bad_request()
+                }
+            } else {
+                ErrorResponse::not_allowed()
+            }
+        }
+        Err(_) => ErrorResponse::not_found(),
+    }
 }
 
 /// Check HTTP method
@@ -169,6 +184,18 @@ impl FromStr for Method {
             "DELETE" => Ok(Method::Delete),
             "OPTIONS" => Ok(Method::Options),
             _ => Err(KError::InvalidHttpMethod),
+        }
+    }
+}
+impl fmt::Display for Method {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Get => write!(f, "GET"),
+            Self::Post => write!(f, "POST"),
+            Self::Put => write!(f, "PUT"),
+            Self::Head => write!(f, "HEAD"),
+            Self::Delete => write!(f, "Delete"),
+            Self::Options => write!(f, "Options"),
         }
     }
 }
