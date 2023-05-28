@@ -10,10 +10,11 @@ use route_recognizer::Router;
 use std::str::FromStr;
 use std::sync::Mutex;
 
+/// Kontoller Handle
+type KontrollerHandle = Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>;
+
 /// 🌀 `kong` request routing
-pub fn kroute(
-    kontrollers: Vec<Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>>,
-) -> rouille::Response {
+pub fn kroute(kontrollers: Vec<KontrollerHandle>) -> rouille::Response {
     let port = Konfig::read_port();
     let address = format!("localhost:{}", port);
     let kong: Kong = Default::default();
@@ -49,7 +50,7 @@ pub fn kroute(
 // filter route
 fn filter(
     request: &rouille::Request,
-    router: &Router<Box<dyn Kontrol + std::marker::Sync + std::marker::Send + 'static>>,
+    router: &Router<KontrollerHandle>,
     kong: &mut Kong,
 ) -> rouille::Response {
     // check request url
