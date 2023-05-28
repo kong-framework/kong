@@ -21,7 +21,7 @@ pub fn kroute(kontrollers: Vec<KontrollerHandle>) -> rouille::Response {
     let kong: Mutex<Kong> = Mutex::new(kong);
     let mut router = Router::new();
 
-    // prepare kontrollers
+    // prepare kontrollers for routing
     for kontroller in kontrollers {
         let kontroller_id = format!("{}{}", kontroller.address(), kontroller.method());
         router.add(&kontroller_id, kontroller);
@@ -60,7 +60,7 @@ fn filter(
     match recognized_route {
         Ok(route) => {
             // get a valid kpassport token
-            if let Ok(kpassport) = get_valid_auth_token(&kong, request) {
+            if let Ok(kpassport) = get_valid_auth_token(kong, request) {
                 kong.kpassport = Some(kpassport);
             } else {
                 kong.kpassport = None
