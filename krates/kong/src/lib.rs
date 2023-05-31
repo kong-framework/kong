@@ -12,7 +12,7 @@
 #![doc(html_logo_url = "https://kwatafana.org/logo.jpeg")]
 #![warn(missing_docs, unreachable_pub, future_incompatible, rust_2018_idioms)]
 
-mod defaults;
+pub mod defaults;
 mod error;
 mod error_response;
 pub mod inputs;
