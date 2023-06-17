@@ -1,6 +1,5 @@
 [workspace]
 members = ["krates/*", "example/*"]
-exclude = ["krates/klient"]
 
 [workspace.package]
 version = "0.1.0"
