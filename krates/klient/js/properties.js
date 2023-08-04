@@ -1,38 +1,75 @@
-const PropertiesAPI = {
+const KongPropertiesAPI = {
     address: "/properties",
-    async add_property(notifier){
-	const form_data = new FormData();
-	const name = document.getElementById("PROPERTY_INPUT_NAME").value;
-	const photos = document.getElementById("PROPERTY_INPUT_PHOTOS");
-
-	form_data.append("name",name);
-	let i = 0;
-
-	for (const photo of photos.files) {
-	    form_data.append(`photos_${i}`, photo);
-	    i++;
+    /// Submit Property
+    async submit_properties(input) {
+	if (!input instanceof PropertyCreationInput){
+	    throw APIError.InvalidInput;
 	}
 
-	return fetch('/properties', {
-	    method: 'POST',
-	    headers: {
-		'Content-Type': 'application/json',
-	    },
-	    body: form_data,
+	// validate input
+	input.validate();
+
+	const formData = new FormData();
+	formData.append("name", input.name);
+	formData.append("bedrooms", input.bedrooms);
+	formData.append("bathrooms", input.bathrooms);
+	formData.append("sqft", input.sqft);
+	formData.append("address", input.address);
+	formData.append("agentid", input.agent);
+	formData.append("description", input.description);
+	if(input.price){
+	    formData.append("price", input.price);
+	}
+
+	for (const [i, photo] of
+	     Array.from(input.photos_input.files).entries()){
+	    formData.append(`photo_${i}`, photo)
+	}
+
+	return fetch(this.endpoints.admin_properties, {
+	    method: "POST",
+	    body: formData,
 	})
 	    .then((response) => {
-		if (response.status === 201){
-		    notifier.success("Property added successfully");
-		}
-		return response.json();
-	    })
-	    .then((data) => {
-		if(data.msg){
-		    notifier.error(data.msg);
+		switch (response.status){
+		case 201:
+		    return response.json();
+		case 400:
+		    throw APIError.InvalidInput;
+		case 401:
+		    throw APIError.Unauthorized;
+		case 404:
+		    throw APIError.AccountNotFound;
+		case 500:
+		    throw APIError.InternalServer;
 		}
 	    })
 	    .catch((error) => {
-		notifier.error(error)
+		throw error;
+	    });
+    },
+
+    /// Get admin Properties
+    async get_properties() {
+	return fetch(this.endpoints.admin_properties, {
+	    method: "GET",
+	})
+	    .then((response) => {
+		switch (response.status){
+		case 200:
+		    return response.json();
+		case 400:
+		    throw APIError.InvalidInput;
+		case 401:
+		    throw APIError.Unauthorized;
+		case 404:
+		    throw APIError.AccountNotFound;
+		case 500:
+		    throw APIError.InternalServer;
+		}
+	    })
+	    .catch((error) => {
+		throw error;
 	    });
     }
 }

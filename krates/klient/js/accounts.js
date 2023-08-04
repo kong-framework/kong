@@ -1,5 +1,5 @@
 /// Account creation input
-class AccountCreationInput {
+class KongAccountCreationInput {
     constructor(username, email, password){
 	this.username = username;
 	this.email = email;
@@ -18,18 +18,18 @@ class AccountCreationInput {
     }
 }
 
-const AccountsAPI = {
+const KongAccountsAPI = {
     address: "/accounts",
     /// Create a new kong account
     async create_account(account_creation_input) {
-	if (!account_creation_input instanceof AccountCreationInput){
+	if (!account_creation_input instanceof KongAccountCreationInput){
 	    throw KongError.InvalidInput;
 	}
 
 	// validate input
 	account_creation_input.validate();
 
-	return fetch(this.endpoints.accounts,{
+	return fetch(this.address,{
 	    method: "POST",
 	    headers: {
 		"Content-Type": "application/json",

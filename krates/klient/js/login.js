@@ -1,5 +1,5 @@
 /// Account authenticatation input
-class AccountAuthInput{
+class KongAccountAuthInput{
     constructor(username, password){
 	this.username = username;
 	this.password = password;
@@ -12,18 +12,18 @@ class AccountAuthInput{
     }
 }
 
-const LoginAPI = {
+const KongLoginAPI = {
     address: "/login",
     /// Authenticate (login) user
     async authenticate(account_auth_input){
-	if (!account_auth_input instanceof AccountAuthInput){
+	if (!account_auth_input instanceof KongAccountAuthInput){
 	    throw KongError.InvalidInput;
 	}
 
 	// validate input
 	account_auth_input.validate();
 
-	return fetch(this.endpoints.auth, {
+	return fetch(this.address, {
 	    method: 'POST',
 	    headers: {
 		'Content-Type': 'application/json',
@@ -48,5 +48,4 @@ const LoginAPI = {
 		throw error;
 	    });
     },
-
 }
