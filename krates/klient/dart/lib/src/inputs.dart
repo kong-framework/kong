@@ -60,3 +60,53 @@ class AccountCreationInput {
     return true;
   }
 }
+
+/// Data used as input to create a new account.
+class AccountLoginInput {
+  /// Account's username
+  String username;
+
+  /// Account master key
+  String password;
+
+  AccountLoginInput(this.username, this.password);
+
+  /// Serialize object to JSON
+  Map<String, String> toJson() {
+    return {
+      'username': username,
+      'password': password,
+    };
+  }
+
+  static AccountLoginInput validCreate(String username, String password) {
+    final input = AccountLoginInput(
+      username,
+      password,
+    );
+
+    if (input.isValid()) {
+      return input;
+    }
+
+    throw Exception(
+        'InvalidAccountLoginInput\n\n Invalid input data for account login');
+  }
+
+  /// Validate input and create
+  bool isValid() {
+    // Validate username
+    if (!Validate.username(username)) {
+      throw Exception(
+          'InvalidUsernameException\n\n- Username cannot be empty\n- Username cannot be more than 15 characters long\n- Username cannot contain symbols expcept one _');
+    }
+
+    // Validate password
+    if (!Validate.password(password)) {
+      throw Exception(
+          'InvalidPasswordException\n\n- Password length should be 10 chartcers or more');
+    }
+
+    return true;
+  }
+}
