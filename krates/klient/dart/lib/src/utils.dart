@@ -1,5 +1,12 @@
 /// utilities -- kong utility functions
 
+/// Extract kpassport token from header
+String extractToken(String cookie) {
+  var str = cookie.split(";")[0];
+  var token = str.split("=")[1];
+  return token;
+}
+
 /// Check if a character is alphanumeric
 bool isAlphanumeric(String char) {
   final alphanumeric = [
