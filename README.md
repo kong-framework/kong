@@ -9,13 +9,11 @@
                          secure web node |___/ v0.1.0
 ```
 
-`kong` is a web framework that is designed to be secure against common
-web server vulnerabilities.
-
 ## 🖇️ Links
 
 - [Source Code](https://kong.kwatafana.org/rust/doc/kong/index.html)
-- [Rust documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
+- [Rust
+  documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
 
 ## ✨ `kong` example
 
@@ -87,4 +85,4 @@ repository.
 
 ---
 
-🌐 <https://kong.kwatafana.org/>  | 📧 <cy6erlion@protonmail.com>
+🌐 <https://kong.kwatafana.org/> | 📧 <cy6erlion@protonmail.com>

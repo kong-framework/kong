@@ -1,0 +1,4 @@
+src_dir = "/home/kaindume/k/kong/krates/kontrollers/js"
+out_js_file = "./kong.js"
+accounts = true
+login = true

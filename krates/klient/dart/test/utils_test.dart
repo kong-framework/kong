@@ -3,6 +3,17 @@ import 'package:test/test.dart';
 
 void main() {
   group('Tests for kong utilities', () {
+    test('Test extractToken function', () {
+      final cookieString =
+          "bizkit_cookie=dGltQG9tYXRhbGEtbm9kZTIwMjMtMDgtMDQgMTY6NTU6MTEuNzkyMjMzNDU0IFVUQ6scW3DC_sTNY3b0QINsmaqATn1hSh8lCvXw5-cz3AEg; Secure; HttpOnly";
+
+      expect(extractToken(cookieString).length, 108);
+      expect(
+          extractToken(cookieString)
+              .startsWith("dGltQG9tYXRhbGEtbm9kZTIwMjMtMDgtMDQgMT"),
+          true);
+    });
+
     test('Test isAlphaNumeric function', () {
       expect(isAlphanumeric("a"), isTrue);
       expect(isAlphanumeric("b"), isTrue);

@@ -563,6 +563,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "kong_js_builder"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "toml",
+]
+
+[[package]]
 name = "kong_kontrollers"
 version = "0.1.0"
 dependencies = [
