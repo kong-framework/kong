@@ -86,12 +86,12 @@ fn filter(
 
 /// check if client auth token is valid
 fn get_valid_auth_token(kong: &Kong, request: &rouille::Request) -> Result<Kpassport, KryptoError> {
-    let cookie_signing_key = &kong.config.secret_key;
+    let kpassport_signing_key = &kong.config.secret_key;
     let auth_cookie_name = &kong.config.auth_cookie_name;
 
-    if let Ok(kpassport) = get_cookie_token(auth_cookie_name, request) {
+    if let Ok(kpassport) = get_kpassport_token(auth_cookie_name, request) {
         // validate kpassport
-        if kpassport.validate(cookie_signing_key).is_ok() {
+        if kpassport.validate(kpassport_signing_key).is_ok() {
             Ok(kpassport)
         } else {
             Err(KryptoError::InvalidKpassport)
@@ -102,7 +102,7 @@ fn get_valid_auth_token(kong: &Kong, request: &rouille::Request) -> Result<Kpass
 }
 
 /// check if request is authorized based on the authorization cookie
-fn get_cookie_token(
+fn get_kpassport_token(
     auth_cookie_name: &str,
     request: &rouille::Request,
 ) -> Result<krypto::kpassport::Kpassport, krypto::error::KryptoError> {
