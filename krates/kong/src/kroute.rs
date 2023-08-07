@@ -66,43 +66,23 @@ fn filter(
                 kong.kpassport = None
             };
 
-            let expected_method = route.handler().method();
+            // Get input
+            let input_json_str = route.handler().get_input(request);
 
-            // check if HTTP method is supported
-            if is_method_supported(request, &expected_method) {
-                let input_json_str = route.handler().get_input(request);
+            // validate input_json_str
+            if let Ok(input) = route.handler().validate(input_json_str) {
+                kong.input = input;
 
-                // validate input_json_str
-                if let Ok(input) = route.handler().validate(input_json_str) {
-                    kong.input = input;
-
-                    // kontrol
-                    route.handler().kontrol(kong)
-                } else {
-                    ErrorResponse::bad_request()
-                }
+                // kontrol
+                route.handler().kontrol(kong)
             } else {
-                ErrorResponse::not_allowed()
+                ErrorResponse::bad_request()
             }
         }
         Err(_) => ErrorResponse::not_found(),
     }
 }
 
-/// Check HTTP method
-fn is_method_supported(request: &rouille::Request, expected_method: &Method) -> bool {
-    if let Ok(request_method) = Method::from_str(request.method()) {
-        let supported_method = expected_method;
-        // check if method is supported by handler
-        if supported_method == &request_method {
-            true
-        } else {
-            false
-        }
-    } else {
-        false
-    }
-}
 
 /// check if client auth token is valid
 fn get_valid_auth_token(kong: &Kong, request: &rouille::Request) -> Result<Kpassport, KryptoError> {
