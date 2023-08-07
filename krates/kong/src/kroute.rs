@@ -16,7 +16,7 @@ type KontrollerHandle = Box<dyn Kontrol + std::marker::Sync + std::marker::Send 
 /// 🌀 `kong` request routing
 pub fn kroute(kontrollers: Vec<KontrollerHandle>) -> rouille::Response {
     let port = Konfig::read_port();
-    let address = format!("localhost:{}", port);
+    let address = format!("localhost:{port}");
     let kong: Kong = Default::default();
     let kong: Mutex<Kong> = Mutex::new(kong);
     let mut router = Router::new();
