@@ -3,9 +3,8 @@
 use crate::{error_response::ErrorResponse, konfig::Konfig, Kong, Kontrol};
 
 use crate::log::Log;
-use crate::KError;
+use crate::{read_kpassport::get_kpassport, KError};
 use core::fmt;
-use krypto::{error::KryptoError, kpassport::Kpassport};
 use route_recognizer::Router;
 use std::str::FromStr;
 use std::sync::Mutex;
@@ -60,7 +59,7 @@ fn filter(
     match recognized_route {
         Ok(route) => {
             // get a valid kpassport token
-            if let Ok(kpassport) = get_valid_auth_token(kong, request) {
+            if let Ok(kpassport) = get_kpassport(kong, request) {
                 kong.kpassport = Some(kpassport);
             } else {
                 kong.kpassport = None
@@ -80,52 +79,6 @@ fn filter(
             }
         }
         Err(_) => ErrorResponse::not_found(),
-    }
-}
-
-
-/// check if client auth token is valid
-fn get_valid_auth_token(kong: &Kong, request: &rouille::Request) -> Result<Kpassport, KryptoError> {
-    let kpassport_signing_key = &kong.config.secret_key;
-    let auth_cookie_name = &kong.config.auth_cookie_name;
-
-    if let Ok(kpassport) = get_kpassport_token(auth_cookie_name, request) {
-        // validate kpassport
-        if kpassport.validate(kpassport_signing_key).is_ok() {
-            Ok(kpassport)
-        } else {
-            Err(KryptoError::InvalidKpassport)
-        }
-    } else {
-        Err(KryptoError::InvalidKpassport)
-    }
-}
-
-/// check if request is authorized based on the authorization cookie
-fn get_kpassport_token(
-    auth_cookie_name: &str,
-    request: &rouille::Request,
-) -> Result<krypto::kpassport::Kpassport, krypto::error::KryptoError> {
-    if let Some((_, cookie_value)) =
-        rouille::input::cookies(request).find(|&(n, _)| n == auth_cookie_name)
-    {
-        let auth = krypto::authentication::AuthHeaders {
-            cookie: Some(cookie_value),
-            bearer_token: None,
-        };
-        // TODO: don't use unwrap
-        let auth = krypto::authentication::Auth::detect_auth_type(auth).unwrap();
-
-        match auth {
-            krypto::authentication::Auth::Cookie(kpassport_str) => {
-                krypto::kpassport::Kpassport::from_str(&kpassport_str)
-            }
-            // TODO: implement
-            _ => unimplemented!(),
-        }
-    } else {
-        // Cookie not found
-        Err(KryptoError::InvalidKpassport)
     }
 }
 

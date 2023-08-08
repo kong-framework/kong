@@ -20,6 +20,7 @@ mod konfig;
 mod kontrol;
 mod kroute;
 pub mod log;
+mod read_kpassport;
 pub mod validate;
 
 pub use error::KError;

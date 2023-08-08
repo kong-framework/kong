@@ -37,16 +37,6 @@
 //!
 //! > Set-Cookie: session=<kpassport>; Expires=Thu, 21 Oct 2021 07:28:00 GMT; Secure; HttpOnly
 //!
-//!
-//! 2.  Authorization header:
-//!
-//! A `kpassport` can be transported using HTTP headers, the
-//! kpassport is sent in the Authorization header:
-//!
-//! ```text
-//! Authorization: Bearer <the kpassport kpassport>
-//! ```
-//!
 //! #### Expiration
 //! A `kpassport` is timestamped at the time it is issued
 
@@ -55,30 +45,9 @@ use std::borrow::Cow;
 
 #[derive(Clone)]
 /// Kong authentication and authorization management
-pub enum Auth {
-    /// Bearer token authentication
-    BearerToken(String),
-    /// Cookie token authentication
-    Cookie(String),
-}
+pub struct Auth;
 
 impl Auth {
-    /// Detect if the type of authentication used (cookie based or bearer token based)
-    /// from the requests headers
-    pub fn detect_auth_type(auth_headers: AuthHeaders<'_>) -> Result<Auth, KryptoError> {
-        // detect cookie based auth
-        if let Some(kpass) = auth_headers.cookie {
-            return Ok(Auth::Cookie(kpass.to_string()));
-        }
-
-        // detect bearer token based auth
-        if let Some(kpass) = auth_headers.bearer_token {
-            return Ok(Auth::BearerToken(kpass.to_string()));
-        }
-
-        Err(KryptoError::MissingAuthenticationCredentials)
-    }
-
     /// Issue a kpassport using HTTP cookies
     pub fn issue_kpassport_cookie(
         username: &str,
@@ -100,40 +69,6 @@ impl Auth {
         }
     }
 
-    /// Issue a kpassport using a Bearer token
-    pub fn issue_kpassport_bearer_token(
-        username: &str,
-        host: &str,
-        signing_key: &str,
-    ) -> Result<(Cow<'static, str>, Cow<'static, str>), KryptoError> {
-        let mut kpassport = Kpassport::new_unsigned(username, host)?;
-        kpassport.sign(signing_key)?;
-
-        let header_key = Cow::from("Authorization");
-
-        match kpassport.export() {
-            Ok(kpassport_str) => {
-                let value = Auth::bearer_token_value_string(&kpassport_str);
-                Ok((header_key, Cow::from(value)))
-            }
-            Err(err) => Err(err),
-        }
-    }
-
-    /// Authenticate
-    pub fn authenticate(self, key: &str) -> Result<(), KryptoError> {
-        match self {
-            Auth::BearerToken(kpassport_str) => {
-                let kpassport = Kpassport::from_str(&kpassport_str)?;
-                kpassport.validate(key)
-            }
-            Auth::Cookie(kpassport_str) => {
-                let kpassport = Kpassport::from_str(&kpassport_str)?;
-                kpassport.validate(key)
-            }
-        }
-    }
-
     /// Generate a cookie value for storing a `kpassport`
     fn cookie_value_string(kpassport: &str, cookie_name: &str) -> String {
         // This ensures that the cookie is only sent over an HTTPS
@@ -148,116 +83,7 @@ impl Auth {
 
         format!("{cookie_name}={kpassport}; {cookie_transport}; {cookie_accessibility}")
     }
-
-    /// Generate a bearer token value for storing a `kpassport`
-    fn bearer_token_value_string(kpassport: &str) -> String {
-        format!("Bearer {kpassport}")
-    }
-}
-
-/// HTTP authentication methods
-pub struct AuthHeaders<'a> {
-    /// Cookie based authentication
-    pub cookie: Option<&'a str>,
-    /// Bearer token based authentication
-    pub bearer_token: Option<&'a str>,
 }
 
 #[cfg(test)]
-mod test {
-    use crate::kpassport::Kpassport;
-
-    use super::*;
-
-    #[test]
-    fn detect_auth_type() {
-        let auth_header = AuthHeaders {
-            cookie: Some("Set-Cookie: kpassport=<kpassport>; Secure; HttpOnly"),
-            bearer_token: None,
-        };
-
-        let auth = Auth::detect_auth_type(auth_header).unwrap();
-
-        match auth {
-            Auth::BearerToken(_) => {
-                panic!("Cookies auth header used and to Athorization bearer token")
-            }
-            Auth::Cookie(_) => (),
-        }
-
-        let auth_header = AuthHeaders {
-            cookie: None,
-            bearer_token: Some("Authorization: Bearer <the kpassport kpassport>"),
-        };
-
-        let auth = Auth::detect_auth_type(auth_header).unwrap();
-
-        match auth {
-            Auth::BearerToken(_) => (),
-            Auth::Cookie(_) => panic!("Athorization bearer token header used and not cookies"),
-        }
-
-        let auth_header = AuthHeaders {
-            cookie: None,
-            bearer_token: None,
-        };
-
-        let auth = Auth::detect_auth_type(auth_header);
-
-        if auth.is_ok() {
-            panic!("Should error because no header provided");
-        }
-    }
-
-    #[test]
-    fn authenticate() {
-        let mut kpassport = Kpassport::new_unsigned("My App", "a username").unwrap();
-        let key = "my secret signing key";
-        kpassport.sign(key).unwrap();
-        let kpassport_str = kpassport.export().unwrap();
-        let cookie_auth = Auth::Cookie(kpassport_str.clone());
-        let bearer_auth = Auth::BearerToken(kpassport_str);
-
-        match cookie_auth.clone().authenticate(key) {
-            Ok(_) => (),
-            Err(_) => panic!("Should not error"),
-        }
-
-        match bearer_auth.clone().authenticate(key) {
-            Ok(_) => (),
-            Err(_) => panic!("Should not error"),
-        }
-
-        match cookie_auth.authenticate("wrong key") {
-            Ok(_) => panic!("should error"),
-            Err(_) => (),
-        }
-
-        match bearer_auth.authenticate("wrong key") {
-            Ok(_) => panic!("should error"),
-            Err(_) => (),
-        }
-    }
-
-    #[test]
-    fn cookie_value_string() {
-        let mut kpassport = Kpassport::new_unsigned("My App", "a username").unwrap();
-        kpassport.sign("my secret signing key").unwrap();
-        let kpassport_str = kpassport.export().unwrap();
-        let cookie_value = Auth::cookie_value_string(&kpassport_str, "kpassport_session");
-        let expected = format!("kpassport_session={kpassport_str}; Secure; HttpOnly");
-
-        assert_eq!(cookie_value, expected);
-    }
-
-    #[test]
-    fn bearer_token_value_string() {
-        let mut kpassport = Kpassport::new_unsigned("My App", "a username").unwrap();
-        kpassport.sign("my secret signing key").unwrap();
-        let kpassport_str = kpassport.export().unwrap();
-        let bearer_token_value = Auth::bearer_token_value_string(&kpassport_str);
-        let expected = format!("Bearer {kpassport_str}");
-
-        assert_eq!(bearer_token_value, expected);
-    }
-}
+mod test {}
