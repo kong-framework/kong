@@ -11,9 +11,8 @@
 
 ## 🖇️ Links
 
-- [Source Code](https://kong.kwatafana.org/rust/doc/kong/index.html)
-- [Rust
-  documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
+- [Source Code](https://github.com/kwatafana/kong)
+- [Rust documentation](https://kong.kwatafana.org/rust/doc/kong/index.html)
 
 ## ✨ `kong` example
 

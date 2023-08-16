@@ -1,5 +1,5 @@
 ---
 title: kong
-subtitle: kong core server, binary
+subtitle: kong core 
 ...
 ---
