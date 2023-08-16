@@ -12,7 +12,12 @@ class KongAPI {
   final Map<String, String> jsonHeaders = {
     'Content-Type': 'application/json; charset=UTF-8',
   };
+
+  /// Kpassport token obtained from cookie after login
   String? kpassport;
+
+  /// Properties real estate API
+  PropertiesAPI? propertiesAPI;
 
   /// Create new account
   Future create(AccountCreationInput input) async {
@@ -84,6 +89,11 @@ class KongAPI {
       case 500:
         KongError.internalServerError;
     }
+  }
+
+  /// Enable properties API
+  enablePropertiesAPI() {
+    propertiesAPI = PropertiesAPI(konfig);
   }
 }
 
