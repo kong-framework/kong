@@ -20,7 +20,7 @@ pub struct Konfig {
     /// Path to static files, __if not provided no static files will be served__
     pub static_files_path: Option<String>,
     /// Node hostname
-    pub host: String,
+    pub hostname: String,
     /// Kong secret key
     pub secret_key: String,
     /// Weather the server should log information to console.
@@ -88,6 +88,20 @@ impl Konfig {
                 let console = config.console_log;
                 let file = config.log_file;
                 (console, file)
+            }
+            None => panic!("Path to config file is not provided!"),
+        }
+    }
+
+    /// read hostname
+    pub fn read_hostname() -> String {
+        let arg = env::args().nth(1);
+        match arg {
+            Some(a) => {
+                let toml_str = fs::read_to_string(a).unwrap();
+                let config: Konfig = toml::from_str(&toml_str).unwrap();
+                let hostname = config.hostname;
+                hostname
             }
             None => panic!("Path to config file is not provided!"),
         }

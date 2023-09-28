@@ -15,6 +15,7 @@ type KontrollerHandle = Box<dyn Kontrol + std::marker::Sync + std::marker::Send 
 /// 🌀 `kong` request routing
 pub fn kroute(kontrollers: Vec<KontrollerHandle>) -> rouille::Response {
     let port = Konfig::read_port();
+    let hostname = Konfig::read_hostname();
     let address = format!("localhost:{port}");
     let kong: Kong = Default::default();
     let kong: Mutex<Kong> = Mutex::new(kong);
@@ -26,7 +27,7 @@ pub fn kroute(kontrollers: Vec<KontrollerHandle>) -> rouille::Response {
         router.add(&kontroller_id, kontroller);
     }
 
-    Log::log(&format!("kong node started @ {address}")).expect("Error while logging");
+    Log::log(&format!("{hostname} node started @ {address}")).expect("Error while logging");
 
     rouille::start_server(address, move |request| {
         let mut kong = kong.lock().unwrap();
