@@ -31,6 +31,7 @@ fn main() {
             address: "/blog".to_string(),
             method: Method::Post,
             database: blogs_database.clone(),
+            accounts_database: accounts_database.clone(),
         }),
         Box::new(PrivateKontroller {
             address: "/private".to_string(),
