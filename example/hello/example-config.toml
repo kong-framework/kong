@@ -14,7 +14,7 @@ auth_cookie_name = "my_session"
 # Path to static files, if not provided no static files will be served
 # static_files_path = "www/"
 # Node hostname
-host = "my-host"
+hostname = "my-host"
 # Kong secret key
 secret_key = "My super secret key" # Do not use in production
 # Weather the server should log information to console
