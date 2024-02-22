@@ -4,3 +4,5 @@ example/hello/test-data/LOG
 krates/kollection/test-data
 krates/kogs/test-data
 website
+www
+*.sqlite
