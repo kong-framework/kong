@@ -85,20 +85,6 @@ mod test {
     const ADDRESS: &str = "http://localhost:7878";
 
     #[test]
-    fn test_create_blog_post() {
-        let url = format!("{ADDRESS}/blog");
-        let form = multipart::Form::new()
-            .text("title", "Test title")
-            .text("subtitle", "Test subtitle")
-            .file("cover", "./test.png")
-            .unwrap()
-            .text("content", "Test Content");
-
-        let client = reqwest::blocking::Client::new();
-        let res = client.post(&url).multipart(form).send().unwrap();
-    }
-
-    #[test]
     fn test_register_account_login() {
         remove_test_dbs();
 
@@ -158,5 +144,53 @@ mod test {
         if std::path::Path::exists(test_db_path) {
             std::fs::remove_file(test_db_path).unwrap();
         }
+    }
+
+    #[test]
+    fn test_create_blog_post() {
+        remove_test_dbs();
+
+        let register_route = format!("{ADDRESS}/accounts");
+        let login_route = format!("{ADDRESS}/login");
+        let url = format!("{ADDRESS}/blog");
+        let form = multipart::Form::new()
+            .text("title", "Test title")
+            .text("subtitle", "Test subtitle")
+            .file("cover", "./test.png")
+            .unwrap()
+            .text("content", "Test Content");
+
+        let client = reqwest::blocking::Client::builder()
+            .cookie_store(true)
+            .build()
+            .unwrap();
+        let res = client.post(&url).multipart(form).send().unwrap();
+        assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
+
+        // create admin new account
+        let account = AccountCreationInput {
+            username: "admin".to_string(),
+            email: Some("admin@example.com".to_string()),
+            password: "1234567890".to_string(),
+        };
+        client.post(register_route).json(&account).send().unwrap();
+
+        // login
+        let login_info = AccountLoginInput {
+            username: "admin".to_string(),
+            password: "1234567890".to_string(),
+        };
+        client.post(login_route).json(&login_info).send().unwrap();
+
+        // Post blog
+        let form = multipart::Form::new()
+            .text("title", "Test title")
+            .text("subtitle", "Test subtitle")
+            .file("cover", "./test.png")
+            .unwrap()
+            .text("content", "Test Content");
+
+        let res = client.post(&url).multipart(form).send().unwrap();
+        assert_eq!(res.status(), StatusCode::CREATED);
     }
 }
