@@ -4,10 +4,14 @@ use kong_kontrollers::accounts::{
 };
 use kong_kontrollers::blog::{create::CreateBlogPostKontroller, database::Database as BlogsDB};
 use kong_kontrollers::login::{is_admin, LoginKontroller};
+use kong_kontrollers::newsletter::{
+    database::Database as NewsletterDB, subscribe::SubscribeNewsletterKontroller,
+};
 use std::sync::{Arc, Mutex};
 
 const TEST_ACCOUNTS_DB: &str = "TEST_ACCOUNTS_DATABASE.sqlite";
 const TEST_BLOGS_DB: &str = "TEST_BLOGS_DATABASE.sqlite";
+const TEST_NEWSLETTER_DB: &str = "TEST_NEWSLETTER_DATABASE.sqlite";
 
 fn main() {
     let accounts_database = Arc::new(Mutex::new(AccountsDB::new(TEST_ACCOUNTS_DB)));
@@ -15,6 +19,9 @@ fn main() {
 
     let blogs_database = Arc::new(Mutex::new(BlogsDB::new(TEST_BLOGS_DB)));
     blogs_database.lock().unwrap().connect().unwrap();
+
+    let newsletter_database = Arc::new(Mutex::new(NewsletterDB::new(TEST_NEWSLETTER_DB)));
+    newsletter_database.lock().unwrap().connect().unwrap();
 
     kroute(vec![
         Box::new(CreateAccountKontroller {
@@ -37,6 +44,11 @@ fn main() {
             address: "/private".to_string(),
             method: Method::Get,
             database: accounts_database.clone(),
+        }),
+        Box::new(SubscribeNewsletterKontroller {
+            address: "/newsletter".to_string(),
+            method: Method::Post,
+            database: newsletter_database.clone(),
         }),
     ]);
 }
@@ -190,6 +202,18 @@ mod test {
             .unwrap()
             .text("content", "Test Content");
 
+        let res = client.post(&url).multipart(form).send().unwrap();
+        assert_eq!(res.status(), StatusCode::CREATED);
+    }
+
+    #[test]
+    fn test_subscribe_newsletter() {
+        remove_test_dbs();
+
+        let url = format!("{ADDRESS}/newsletter");
+        let form = multipart::Form::new().text("email", "test@example.com");
+
+        let client = reqwest::blocking::Client::builder().build().unwrap();
         let res = client.post(&url).multipart(form).send().unwrap();
         assert_eq!(res.status(), StatusCode::CREATED);
     }
