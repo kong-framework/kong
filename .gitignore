@@ -1,8 +1,8 @@
 *~
 target
 example/hello/test-data/LOG
-krates/kollection/test-data
-krates/kogs/test-data
+krates/klient
+krates/kontrollers
 website
 www
 *.sqlite
