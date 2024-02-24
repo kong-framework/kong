@@ -3,6 +3,7 @@ target
 example/hello/test-data/LOG
 krates/klient
 krates/kontrollers
+krates/ktest
 website
 www
 *.sqlite
