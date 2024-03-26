@@ -35,6 +35,7 @@ pub use serde_json::{
 };
 
 use krypto::kpassport::Kpassport;
+use route_recognizer::Params;
 use std::fs::File;
 
 /// 🔥 Kong object
@@ -45,6 +46,8 @@ pub struct Kong {
     pub kpassport: Option<Kpassport>,
     /// Validated user input
     pub input: Option<serde_json::Value>,
+    /// Url parameters
+    pub url_parameters: Option<Params>,
 }
 
 impl Kong {
@@ -93,6 +96,7 @@ impl Kong {
         }
     }
 }
+
 impl Default for Kong {
     /// Create new kong instance
     fn default() -> Self {
@@ -104,6 +108,7 @@ impl Default for Kong {
             config,
             kpassport: None,
             input: None,
+            url_parameters: None,
         }
     }
 }

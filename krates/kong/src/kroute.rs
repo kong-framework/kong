@@ -59,6 +59,9 @@ fn filter(
 
     match recognized_route {
         Ok(route) => {
+            // get url parameters
+            kong.url_parameters = Some(route.params().clone());
+
             // get a valid kpassport token
             if let Ok(kpassport) = get_kpassport(kong, request) {
                 kong.kpassport = Some(kpassport);
