@@ -132,8 +132,8 @@ impl fmt::Display for Method {
             Self::Post => write!(f, "POST"),
             Self::Put => write!(f, "PUT"),
             Self::Head => write!(f, "HEAD"),
-            Self::Delete => write!(f, "Delete"),
-            Self::Options => write!(f, "Options"),
+            Self::Delete => write!(f, "DELETE"),
+            Self::Options => write!(f, "OPTIONS"),
         }
     }
 }
