@@ -23,7 +23,7 @@ pub fn kroute(kontrollers: Vec<KontrollerHandle>) -> rouille::Response {
 
     // prepare kontrollers for routing
     for kontroller in kontrollers {
-        let kontroller_id = format!("{}{}", kontroller.address(), kontroller.method());
+        let kontroller_id = format!("{}{}", kontroller.method(), kontroller.address());
         router.add(&kontroller_id, kontroller);
     }
 
@@ -54,7 +54,7 @@ fn filter(
     kong: &mut Kong,
 ) -> rouille::Response {
     // check request url
-    let kontroller_id = format!("{}{}", request.url(), request.method());
+    let kontroller_id = format!("{}{}", request.method(), request.url());
     let recognized_route = router.recognize(&kontroller_id);
 
     match recognized_route {
